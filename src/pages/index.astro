@@ -1,11 +1,120 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import Layout from '@/layouts/Layout.astro';
+import '../styles/global.css';
 ---
 
 <Layout>
-	<Welcome />
+  <header>
+	<img alt="logo"/>
+
+	<ul>
+		<li>Home</li>
+		<li>Headphones</li>
+		<li>Speakers</li>
+		<li>Earphones</li>
+	</ul>
+
+	<img alt="cart"/>
+  </header>
+  <main class="container mx-auto px-4">
+    <section class="py-20 text-center">
+      <h1 class="text-h1">Audiophile</h1>
+      <p class="text-body max-w-2xl mx-auto mt-8">
+        Experience natural, lifelike audio and exceptional build quality made for the passionate music enthusiast.
+      </p>
+    </section>
+
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-8 my-16">
+      <div class="bg-gray p-8 rounded-lg text-center">
+        <h2 class="text-h4 mb-4">Headphones</h2>
+        <a href="/headphones" class="inline-flex items-center text-orange hover:text-orange-light">
+          Shop <span class="ml-2">→</span>
+        </a>
+      </div>
+      
+      <div class="bg-gray p-8 rounded-lg text-center">
+        <h2 class="text-h4 mb-4">Speakers</h2>
+        <a href="/speakers" class="inline-flex items-center text-orange hover:text-orange-light">
+          Shop <span class="ml-2">→</span>
+        </a>
+      </div>
+      
+      <div class="bg-gray p-8 rounded-lg text-center">
+        <h2 class="text-h4 mb-4">Earphones</h2>
+        <a href="/earphones" class="inline-flex items-center text-orange hover:text-orange-light">
+          Shop <span class="ml-2">→</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="my-16">
+      <div class="bg-black-light text-white p-12 rounded-lg">
+        <h2 class="text-h2 text-white mb-8">New product</h2>
+        <h3 class="text-h1 mb-6">XX99 Mark II Headphones</h3>
+        <p class="text-body text-white/75 max-w-md mb-8">
+          Experience natural, lifelike audio and exceptional build quality made for the passionate music enthusiast.
+        </p>
+        <a href="/product/xx99-mark-ii" class="inline-block bg-orange hover:bg-orange-light text-white px-8 py-4 rounded-md font-bold">
+          See product
+        </a>
+      </div>
+    </section>
+
+<section>
+  Headphones
+  Shop
+
+  Earphones
+  Shop
+
+  ZX9 speaker
+  Upgrade to premium speakers that are phenomenally built to deliver truly remarkable sound.
+  See product
+
+  ZX7 speaker
+  See product
+
+  YX1 earphones
+  See product
+</section>	 
+
+ <section>
+	<h2>Bringing you the best audio gear</h2>
+
+	<p>
+  Located at the heart of New York City, Audiophile is the premier store for high end headphones, 
+  earphones, speakers, and audio accessories. We have a large showroom and luxury demonstration 
+  rooms available for you to browse and experience a wide range of our products. Stop by our store 
+  to meet some of the fantastic people who make Audiophile the best place to buy your portable 
+  audio equipment.
+	</p>
+ </section>
+  </main>
+
+  <footer>
+	<img alt="logo"/>
+	<ul>
+		<li>Home</li>
+		<li>Headphones</li>
+		<li>Speakers</li>
+		<li>Earphones</li>
+	</ul>
+
+	<div class="social-links">
+		<img alt="facebook"/>
+		<img alt="twitter"/>
+		<img alt="instgram"/>
+	</div>
+
+	<p>
+  Audiophile is an all in one stop to fulfill your audio needs. We're a small team of music lovers 
+  and sound specialists who are devoted to helping you get the most out of personal audio. Come and 
+  visit our demo facility - we’re open 7 days a week.
+
+  <span>
+	Copyright 2021. All Rights Reserved
+  </span>
+	</p>
+	
+  </footer>
 </Layout>
