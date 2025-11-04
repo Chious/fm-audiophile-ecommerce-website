@@ -1,0 +1,80 @@
+---
+import { Image } from "astro:assets";
+import logo from "@/assets/shared/desktop/logo.svg";
+import iconTwitter from "@/assets/shared/desktop/icon-twitter.svg?raw";
+import iconFacebook from "@/assets/shared/desktop/icon-facebook.svg?raw";
+import iconInstagram from "@/assets/shared/desktop/icon-instagram.svg?raw";
+
+const FOOTER_NAVS = [
+  { label: "Home", link: "/" },
+  { label: "Headphones", link: "/category/headphones" },
+  { label: "Speakers", link: "/category/speakers" },
+  { label: "Earphones", link: "/category/earphones" },
+];
+
+// Replace fill colors with currentColor so SVG responds to text color
+const processSvg = (svg: string) => {
+  return svg.replace(/fill="[^"]*"/g, 'fill="currentColor"');
+};
+
+const SOCIAL_LINKS = [
+  { label: "facebook", href: "#", img: processSvg(iconFacebook) },
+  { label: "twitter", href: "#", img: processSvg(iconTwitter) },
+  { label: "instagram", href: "#", img: processSvg(iconInstagram) },
+];
+---
+
+<footer
+  class="bg-black-light grid w-full grid-cols-1 flex-col items-center justify-center gap-12 p-12 px-8 md:items-start md:justify-start md:px-12 lg:grid-cols-2 lg:px-32"
+>
+  <Image alt="logo" src={logo} />
+  <ul
+    class="flex w-full flex-col items-start gap-12 md:w-fit md:flex-row md:gap-8 lg:w-full lg:flex-row lg:items-end"
+  >
+    {
+      FOOTER_NAVS.map((nav) => (
+        <li class="w-full text-center lg:text-end">
+          <a
+            href={nav.link}
+            rel="no-referrer"
+            class="text-h6 hover:text-orange text-white transition duration-150"
+          >
+            {nav.label}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+
+  <p class="text-gray text-center md:text-start">
+    Audiophile is an all in one stop to fulfill your audio needs. We're a small
+    team of music lovers and sound specialists who are devoted to helping you
+    get the most out of personal audio. Come and visit our demo facility - we’re
+    open 7 days a week.
+
+    <span class="mt-12 block"> Copyright 2021. All Rights Reserved </span>
+  </p>
+
+  <div
+    class="social-links flex h-full justify-center gap-4 md:items-center md:justify-end lg:justify-end"
+  >
+    {
+      SOCIAL_LINKS.map((link) => (
+        <a
+          href={link.href}
+          aria-label={link.label}
+          class="social-link hover:text-orange inline-flex items-center justify-center text-white transition-colors duration-150"
+        >
+          <div class="social-icon" set:html={link.img} />
+        </a>
+      ))
+    }
+  </div>
+</footer>
+
+<style>
+  .social-icon svg,
+  .social-icon svg path {
+    fill: currentColor;
+  }
+</style>

@@ -1,0 +1,28 @@
+---
+import { Image } from "astro:assets";
+import bestGearImage from "@/assets/shared/desktop/image-best-gear.jpg";
+
+interface Props {
+  image?: ImageMetadata;
+}
+
+const { image = bestGearImage } = Astro.props;
+---
+
+<section class="my-16 grid grid-cols-1 gap-4 md:grid-cols-2">
+  <div class="flex h-full flex-col items-center justify-center gap-4">
+    <h2>
+      Bringing you the <span class="text-orange">best</span> audio gear
+    </h2>
+
+    <p class="text-black-light">
+      Located at the heart of New York City, Audiophile is the premier store for
+      high end headphones, earphones, speakers, and audio accessories. We have a
+      large showroom and luxury demonstration rooms available for you to browse
+      and experience a wide range of our products. Stop by our store to meet
+      some of the fantastic people who make Audiophile the best place to buy
+      your portable audio equipment.
+    </p>
+  </div>
+  <Image src={image} alt="audio gear" class="aspect-square rounded-md" />
+</section>

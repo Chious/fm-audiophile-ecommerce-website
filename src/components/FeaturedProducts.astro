@@ -1,0 +1,110 @@
+---
+import { Image, getImage } from "astro:assets";
+
+interface FeaturedProduct {
+  id: string;
+  name: string;
+  description: string;
+  link: string;
+  image: ImageMetadata;
+  pattern?: ImageMetadata;
+  variant: "orange" | "background" | "split";
+  backgroundImage?: ImageMetadata;
+}
+
+interface Props {
+  products: FeaturedProduct[];
+}
+
+const { products } = Astro.props;
+
+// Process background images
+const processedProducts = await Promise.all(
+  products.map(async (product) => {
+    if (product.variant === "background" && product.backgroundImage) {
+      const bgImage = await getImage({ src: product.backgroundImage });
+      return { ...product, backgroundImageUrl: bgImage.src };
+    }
+    return product;
+  }),
+);
+---
+
+<section class="my-16 flex flex-col gap-4">
+  {
+    processedProducts.map((product) => {
+      if (product.variant === "orange") {
+        return (
+          <div
+            data-id={product.id}
+            class="bg-orange relative grid grid-cols-1 gap-8 overflow-hidden rounded-md px-20 pt-20 text-white lg:grid-cols-2"
+          >
+            <div class="relative z-0">
+              <Image
+                src={product.image}
+                alt={product.name}
+                class="relative z-10 p-20 py-0"
+              />
+              {product.pattern && (
+                <Image
+                  alt="pattern-circles"
+                  src={product.pattern}
+                  class="absolute top-1/2 left-1/2 z-0 w-full max-w-3xl -translate-x-1/2 -translate-y-1/2 scale-200 lg:scale-100"
+                />
+              )}
+            </div>
+            <div class="flex h-full flex-col items-center justify-center gap-4 p-4 lg:items-start lg:justify-start">
+              <h2 class="w-full text-center lg:text-start">{product.name}</h2>
+              <p class="text-body">{product.description}</p>
+              <a
+                href={product.link}
+                class="hover:bg-black-light bg-black p-4 text-white uppercase"
+              >
+                see product
+              </a>
+            </div>
+          </div>
+        );
+      }
+
+      if (product.variant === "background") {
+        return (
+          <div
+            data-id={product.id}
+            class="relative flex h-[320px] flex-col items-start justify-center gap-6 rounded-md bg-cover bg-center bg-no-repeat pl-24"
+            style={
+              (product as any).backgroundImageUrl
+                ? `background-image: url(${(product as any).backgroundImageUrl})`
+                : undefined
+            }
+          >
+            <h2>{product.name}</h2>
+            <a
+              href={product.link}
+              class="border border-black px-8 py-3 text-sm font-bold tracking-wider uppercase hover:bg-black hover:text-white"
+            >
+              see product
+            </a>
+          </div>
+        );
+      }
+
+      if (product.variant === "split") {
+        return (
+          <div data-id={product.id} class="grid grid-cols-2 gap-4">
+            <Image src={product.image} alt={product.name} class="rounded-md" />
+            <div class="bg-gray flex flex-col items-start justify-center gap-4 rounded-md p-8">
+              <h2>{product.name}</h2>
+              <a
+                href={product.link}
+                class="hover:bg-black-light bg-black p-4 text-white uppercase"
+              >
+                see product
+              </a>
+            </div>
+          </div>
+        );
+      }
+    })
+  }
+</section>

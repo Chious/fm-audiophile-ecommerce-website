@@ -1,120 +1,115 @@
 ---
-import Layout from '@/layouts/Layout.astro';
-import '../styles/global.css';
+import Layout from "@/layouts/Layout.astro";
+import { Image } from "astro:assets";
+import FeaturedProducts from "@/components/FeaturedProducts.astro";
+import BestGearSection from "@/components/BestGearSection.astro";
+import heroImage from "@/assets/home/tablet/image-header.jpg";
+import imgHeadphones from "@/assets/shared/desktop/image-category-thumbnail-headphones.png";
+import imgSpeakers from "@/assets/shared/desktop/image-category-thumbnail-speakers.png";
+import imgEarphones from "@/assets/shared/desktop/image-category-thumbnail-earphones.png";
+import arrowIcon from "@/assets/shared/desktop/icon-arrow-right.svg";
+import imageZx9Speaker from "@/assets/home/desktop/image-speaker-zx9.png";
+import imageZx7Speaker from "@/assets/home/desktop/image-speaker-zx7.jpg";
+import imageEarphoneYx1 from "@/assets/home/desktop/image-earphones-yx1.jpg";
+import patternCircles from "@/assets/home/desktop/pattern-circles.svg";
+
+const RECOMMANDS = [
+  { title: "headphones", img: imgHeadphones, link: "/category/headphones" },
+  { title: "speakers", img: imgSpeakers, link: "/category/speakers" },
+  { title: "earphones", img: imgEarphones, link: "/category/earphones" },
+];
+
+const RECOMMAND_PRODUCTS = [
+  {
+    id: "zx9-speaker",
+    name: "ZX9 Speaker",
+    description:
+      "Upgrade to premium speakers that are phenomenally built to deliver truly remarkable sound.",
+    link: "/details/zx9-speaker",
+    image: imageZx9Speaker,
+    pattern: patternCircles,
+    variant: "orange" as const,
+  },
+  {
+    id: "zx7-speaker",
+    name: "ZX7 Speaker",
+    description: "",
+    link: "/details/zx7-speaker",
+    image: imageZx7Speaker,
+    variant: "background" as const,
+    backgroundImage: imageZx7Speaker,
+  },
+  {
+    id: "yx1-earphones",
+    name: "YX1 earphones",
+    description: "",
+    link: "/details/yx1-earphones",
+    image: imageEarphoneYx1,
+    variant: "split" as const,
+  },
+];
 ---
 
 <Layout>
-  <header>
-	<img alt="logo"/>
-
-	<ul>
-		<li>Home</li>
-		<li>Headphones</li>
-		<li>Speakers</li>
-		<li>Earphones</li>
-	</ul>
-
-	<img alt="cart"/>
-  </header>
-  <main class="container mx-auto px-4">
-    <section class="py-20 text-center">
-      <h1 class="text-h1">Audiophile</h1>
-      <p class="text-body max-w-2xl mx-auto mt-8">
-        Experience natural, lifelike audio and exceptional build quality made for the passionate music enthusiast.
-      </p>
-    </section>
-
-    <section class="grid grid-cols-1 md:grid-cols-3 gap-8 my-16">
-      <div class="bg-gray p-8 rounded-lg text-center">
-        <h2 class="text-h4 mb-4">Headphones</h2>
-        <a href="/headphones" class="inline-flex items-center text-orange hover:text-orange-light">
-          Shop <span class="ml-2">→</span>
-        </a>
-      </div>
-      
-      <div class="bg-gray p-8 rounded-lg text-center">
-        <h2 class="text-h4 mb-4">Speakers</h2>
-        <a href="/speakers" class="inline-flex items-center text-orange hover:text-orange-light">
-          Shop <span class="ml-2">→</span>
-        </a>
-      </div>
-      
-      <div class="bg-gray p-8 rounded-lg text-center">
-        <h2 class="text-h4 mb-4">Earphones</h2>
-        <a href="/earphones" class="inline-flex items-center text-orange hover:text-orange-light">
-          Shop <span class="ml-2">→</span>
-        </a>
-      </div>
-    </section>
-
-    <section class="my-16">
-      <div class="bg-black-light text-white p-12 rounded-lg">
-        <h2 class="text-h2 text-white mb-8">New product</h2>
-        <h3 class="text-h1 mb-6">XX99 Mark II Headphones</h3>
-        <p class="text-body text-white/75 max-w-md mb-8">
-          Experience natural, lifelike audio and exceptional build quality made for the passionate music enthusiast.
-        </p>
-        <a href="/product/xx99-mark-ii" class="inline-block bg-orange hover:bg-orange-light text-white px-8 py-4 rounded-md font-bold">
+  <section
+    id="hero-section"
+    class="relative right-1/2 left-1/2 -mr-[50vw] -ml-[50vw] h-fit w-screen bg-black py-40 md:py-20 lg:py-20"
+  >
+    <div
+      class="relative z-10 container mx-auto grid grid-cols-1 px-4 text-center lg:grid-cols-2"
+    >
+      <div class="text-start">
+        <h5 class="text-gray text-center lg:text-start">New Product</h5>
+        <h2 class="text-center text-white lg:text-start">
+          XX99 Mark II Headphones
+        </h2>
+        <h4
+          class="text-body text-gray my-8 max-w-2xl text-center lg:text-start"
+        >
+          Experience natural, lifelike audio and exceptional build quality made
+          for the passionate music enthusiast.
+        </h4>
+        <a
+          href="/product/xx99-mark-ii"
+          class="bg-orange hover:bg-orange-light relative left-1/2 inline-block -translate-x-1/2 px-8 py-4 font-bold text-white uppercase lg:left-0 lg:translate-x-0"
+        >
           See product
         </a>
       </div>
-    </section>
+      <Image
+        alt="XX99 Mark II Headphones"
+        src={heroImage}
+        class="absolute inset-0 -z-10 aspect-square h-full w-full scale-200 object-contain md:scale-100 lg:static"
+      />
+    </div>
+  </section>
 
-<section>
-  Headphones
-  Shop
+  <section class="my-20 grid grid-cols-1 gap-8 md:grid-cols-3">
+    {
+      RECOMMANDS.map((data) => (
+        <div class="relative overflow-hidden rounded-lg p-8 text-center">
+          <div class="bg-gray absolute inset-x-0 bottom-0 h-2/3" />
+          <Image
+            src={data.img}
+            alt={data.title}
+            class="relative z-10 mx-auto h-40 w-full object-contain"
+          />
+          <h5 class="relative z-10 mb-4">{data.title}</h5>
+          <a
+            href="/headphones"
+            class="text-black-light hover:text-orange-light relative z-10 inline-flex items-center uppercase"
+          >
+            Shop{" "}
+            <span class="ml-2">
+              <Image src={arrowIcon} alt="arrow" />
+            </span>
+          </a>
+        </div>
+      ))
+    }
+  </section>
 
-  Earphones
-  Shop
+  <FeaturedProducts products={RECOMMAND_PRODUCTS} />
 
-  ZX9 speaker
-  Upgrade to premium speakers that are phenomenally built to deliver truly remarkable sound.
-  See product
-
-  ZX7 speaker
-  See product
-
-  YX1 earphones
-  See product
-</section>	 
-
- <section>
-	<h2>Bringing you the best audio gear</h2>
-
-	<p>
-  Located at the heart of New York City, Audiophile is the premier store for high end headphones, 
-  earphones, speakers, and audio accessories. We have a large showroom and luxury demonstration 
-  rooms available for you to browse and experience a wide range of our products. Stop by our store 
-  to meet some of the fantastic people who make Audiophile the best place to buy your portable 
-  audio equipment.
-	</p>
- </section>
-  </main>
-
-  <footer>
-	<img alt="logo"/>
-	<ul>
-		<li>Home</li>
-		<li>Headphones</li>
-		<li>Speakers</li>
-		<li>Earphones</li>
-	</ul>
-
-	<div class="social-links">
-		<img alt="facebook"/>
-		<img alt="twitter"/>
-		<img alt="instgram"/>
-	</div>
-
-	<p>
-  Audiophile is an all in one stop to fulfill your audio needs. We're a small team of music lovers 
-  and sound specialists who are devoted to helping you get the most out of personal audio. Come and 
-  visit our demo facility - we’re open 7 days a week.
-
-  <span>
-	Copyright 2021. All Rights Reserved
-  </span>
-	</p>
-	
-  </footer>
+  <BestGearSection />
 </Layout>

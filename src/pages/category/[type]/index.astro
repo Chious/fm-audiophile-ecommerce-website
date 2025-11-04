@@ -1,0 +1,11 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import data from "@/constants/data.json";
+
+export async function getStaticPaths() {
+  const categories = Array.from(new Set(data.map((p) => p.category)));
+  return categories.map((type) => ({ params: { type } }));
+}
+---
+
+<Layout> Category Type </Layout>

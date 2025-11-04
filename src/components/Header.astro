@@ -1,0 +1,42 @@
+---
+import { Image } from "astro:assets";
+import logo from "@/assets/shared/desktop/logo.svg";
+import iconCart from "@/assets/shared/desktop/icon-cart.svg";
+import iconHamburger from "@/assets/shared/tablet/icon-hamburger.svg";
+
+const HEADER_NAVS = [
+  { label: "Home", link: "/" },
+  { label: "Headphones", link: "/category/headphones" },
+  { label: "Speakers", link: "/category/speakers" },
+  { label: "Earphones", link: "/category/earphones" },
+];
+---
+
+<header
+  class="fixed top-0 z-50 flex h-12 w-screen items-center justify-between gap-4 bg-black p-12 px-8 md:px-12 lg:px-32"
+>
+  <Image alt="menu" src={iconHamburger} class="block lg:hidden" />
+  <div class="">
+    <a href="/" rel="noreferrer">
+      <Image alt="logo" src={logo} loading="eager" width={143} height={25} />
+    </a>
+  </div>
+
+  <ul class="hidden flex-1 items-center justify-center gap-12 lg:flex">
+    {
+      HEADER_NAVS.map((nav) => (
+        <li>
+          <a
+            href={nav.link}
+            rel="no-referrer"
+            class="hover:text-gray text-white uppercase"
+          >
+            {nav.label}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+
+  <Image alt="cart" src={iconCart} loading="eager" />
+</header>

@@ -1,32 +1,32 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 @font-face {
-  font-family: 'Manrope';
-  src: url('/public/font/Manrope-Regular.ttf') format('truetype');
+  font-family: "Manrope";
+  src: url("/public/font/Manrope-Regular.ttf") format("truetype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Manrope';
-  src: url('/font/Manrope-Medium.ttf') format('truetype');
+  font-family: "Manrope";
+  src: url("/font/Manrope-Medium.ttf") format("truetype");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Manrope';
-  src: url('/font/Manrope-Bold.ttf') format('truetype');
+  font-family: "Manrope";
+  src: url("/font/Manrope-Bold.ttf") format("truetype");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Manrope';
-  src: url('/font/Manrope-ExtraBold.ttf') format('truetype');
+  font-family: "Manrope";
+  src: url("/font/Manrope-ExtraBold.ttf") format("truetype");
   font-weight: 800;
   font-style: normal;
   font-display: swap;
@@ -42,7 +42,7 @@
   --color-gray: #f1f1f1;
 
   /* Font Family */
-  --font-family-sans: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+  --font-family-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
 
   /* Font Weights */
   --font-weight-medium: 500;
@@ -57,7 +57,7 @@
     text-transform: uppercase;
     line-height: 58px;
     letter-spacing: 2px;
-    font-family: 'Manrope', sans-serif;
+    font-family: "Manrope", sans-serif;
   }
 
   h2 {
@@ -66,7 +66,7 @@
     text-transform: uppercase;
     line-height: 44px;
     letter-spacing: 1.5px;
-    font-family: 'Manrope', sans-serif;
+    font-family: "Manrope", sans-serif;
   }
 
   h3 {
@@ -75,7 +75,7 @@
     text-transform: uppercase;
     line-height: 36px;
     letter-spacing: 1.15px;
-    font-family: 'Manrope', sans-serif;
+    font-family: "Manrope", sans-serif;
   }
 
   h4 {
@@ -84,7 +84,7 @@
     text-transform: uppercase;
     line-height: 38px;
     letter-spacing: 2px;
-    font-family: 'Manrope', sans-serif;
+    font-family: "Manrope", sans-serif;
   }
 
   h5 {
@@ -93,7 +93,7 @@
     text-transform: uppercase;
     line-height: 33px;
     letter-spacing: 1.7px;
-    font-family: 'Manrope', sans-serif;
+    font-family: "Manrope", sans-serif;
   }
 
   h6 {
@@ -102,14 +102,14 @@
     text-transform: uppercase;
     line-height: 24px;
     letter-spacing: 1.3px;
-    font-family: 'Manrope', sans-serif;
+    font-family: "Manrope", sans-serif;
   }
 }
 
 @layer utilities {
   /* Text Utility Classes */
   .text-overline {
-    font-family: 'Manrope', sans-serif;
+    font-family: "Manrope", sans-serif;
     font-weight: 400;
     font-size: 14px;
     text-transform: uppercase;
@@ -118,7 +118,7 @@
   }
 
   .text-subtitle {
-    font-family: 'Manrope', sans-serif;
+    font-family: "Manrope", sans-serif;
     font-weight: 700;
     font-size: 13px;
     text-transform: uppercase;
@@ -127,7 +127,7 @@
   }
 
   .text-body {
-    font-family: 'Manrope', sans-serif;
+    font-family: "Manrope", sans-serif;
     font-weight: 500;
     font-size: 15px;
     line-height: 25px;
