@@ -1,11 +1,116 @@
 ---
 import Layout from "@/layouts/Layout.astro";
+import { Image, getImage } from "astro:assets";
 import data from "@/constants/data.json";
+import RecommandCategories from "@/components/RecommandCategories.astro";
+import BestGearSection from "@/components/BestGearSection.astro";
+import imgHeadphones from "@/assets/shared/desktop/image-category-thumbnail-headphones.png";
+import imgSpeakers from "@/assets/shared/desktop/image-category-thumbnail-speakers.png";
+import imgEarphones from "@/assets/shared/desktop/image-category-thumbnail-earphones.png";
+import clsx from "clsx";
 
 export async function getStaticPaths() {
   const categories = Array.from(new Set(data.map((p) => p.category)));
   return categories.map((type) => ({ params: { type } }));
 }
+
+const { type } = Astro.params;
+const ITEMS = data.filter((d) => d.category === type);
+
+// Capitalize first letter for display
+const categoryTitle = type ? type.charAt(0).toUpperCase() + type.slice(1) : "";
+
+const RECOMMANDS = [
+  { title: "headphones", img: imgHeadphones, link: "/category/headphones" },
+  { title: "speakers", img: imgSpeakers, link: "/category/speakers" },
+  { title: "earphones", img: imgEarphones, link: "/category/earphones" },
+];
+
+// Load all category images dynamically
+const categoryImages = import.meta.glob<{ default: ImageMetadata }>(
+  "@/assets/product-*/desktop/image-category-page-preview.jpg",
+  { eager: true },
+);
+
+// Create a map of slug to image
+const imageMap: Record<string, ImageMetadata> = {};
+for (const [path, module] of Object.entries(categoryImages)) {
+  const slug = path.match(/product-([^/]+)/)?.[1];
+  if (slug) {
+    imageMap[slug] = module.default;
+  }
+}
+
+// Process items with images
+const processedItems = await Promise.all(
+  ITEMS.map(async (item) => {
+    const image = imageMap[item.slug];
+    let imageSrc: string | undefined;
+    if (image) {
+      const processedImage = await getImage({ src: image });
+      imageSrc = processedImage.src;
+    }
+    return { ...item, imageSrc };
+  }),
+);
 ---
 
-<Layout> Category Type </Layout>
+<Layout>
+  <section
+    class="relative right-1/2 left-1/2 -mr-[50vw] -ml-[50vw] h-fit w-screen bg-black py-40 md:py-20 lg:py-20"
+  >
+    <div class="container mx-auto px-4">
+      <h1 class="text-center text-white uppercase">{categoryTitle}</h1>
+    </div>
+  </section>
+
+  <section
+    id="category-gallery"
+    class="container mx-auto my-20 grid grid-cols-1 gap-32 px-4"
+  >
+    {
+      processedItems.map((d, i) => (
+        <div class="grid grid-cols-1 gap-12 lg:grid-cols-2">
+          <div
+            class={clsx(
+              "bg-gray-light relative overflow-hidden rounded-lg",
+              i % 2 === 0 ? "order-2" : "order-1",
+            )}
+          >
+            {d.imageSrc ? (
+              <img
+                src={d.imageSrc}
+                alt={d.name}
+                class="h-full w-full object-cover"
+              />
+            ) : (
+              <div class="bg-gray h-64 w-full" />
+            )}
+          </div>
+          <div
+            class={clsx(
+              "flex flex-col items-center justify-center gap-4 lg:items-start",
+              i % 2 === 0 ? "order-1" : "order-2",
+            )}
+          >
+            {d.new == true && (
+              <h5 class="text-orange text-center lg:text-start">NEW PRODUCT</h5>
+            )}
+            <h2 class="w-full text-center uppercase lg:text-start">{d.name}</h2>
+            <p class="text-center text-black lg:text-start">{d.description}</p>
+            <a
+              href={`/details/${d.slug}`}
+              class="bg-orange hover:bg-orange-light inline-block p-4 text-center text-white uppercase"
+            >
+              see product
+            </a>
+          </div>
+        </div>
+      ))
+    }
+  </section>
+
+  <RecommandCategories categories={RECOMMANDS} />
+
+  <BestGearSection />
+</Layout>

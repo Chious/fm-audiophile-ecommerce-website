@@ -2,7 +2,7 @@
 
 @font-face {
   font-family: "Manrope";
-  src: url("/public/font/Manrope-Regular.ttf") format("truetype");
+  src: url("/font/Manrope-Regular.ttf") format("truetype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -106,6 +106,15 @@
   }
 }
 
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
 @layer utilities {
   /* Text Utility Classes */
   .text-overline {
@@ -131,5 +140,10 @@
     font-weight: 500;
     font-size: 15px;
     line-height: 25px;
+  }
+
+  /* Shimmer Animation */
+  .shimmer-animation {
+    animation: shimmer 1.5s infinite;
   }
 }

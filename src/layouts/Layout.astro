@@ -2,6 +2,7 @@
 import "@/styles/global.css";
 import Footer from "@/components/Footer.astro";
 import Header from "@/components/Header.astro";
+import Dialog from "@/components/Dialog.astro";
 ---
 
 <!doctype html>
@@ -10,6 +11,40 @@ import Header from "@/components/Header.astro";
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
+
+    <!-- Preconnect for font loading optimization -->
+    <link rel="preconnect" href="/" crossorigin />
+
+    <!-- Preload critical fonts -->
+    <link
+      rel="preload"
+      href="/font/Manrope-Regular.ttf"
+      as="font"
+      type="font/ttf"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="preload"
+      href="/font/Manrope-Medium.ttf"
+      as="font"
+      type="font/ttf"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="preload"
+      href="/font/Manrope-Bold.ttf"
+      as="font"
+      type="font/ttf"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="preload"
+      href="/font/Manrope-ExtraBold.ttf"
+      as="font"
+      type="font/ttf"
+      crossorigin="anonymous"
+    />
+
     <link
       rel="icon"
       type="image/png"
@@ -20,7 +55,8 @@ import Header from "@/components/Header.astro";
   </head>
   <body>
     <Header />
-    <main class="container mx-auto mt-24 min-h-screen px-4">
+    <main class="relative container mx-auto mt-24 min-h-screen px-4">
+      <Dialog />
       <slot />
     </main>
     <Footer />

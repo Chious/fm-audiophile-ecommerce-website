@@ -1,30 +1,470 @@
 ---
 import Layout from "@/layouts/Layout.astro";
+import { Image } from "astro:assets";
+import iconOrderConfirmation from "@/assets/checkout/icon-order-confirmation.svg";
+import iconCashOnDelivery from "@/assets/checkout/icon-cash-on-delivery.svg";
+import data from "@/constants/data.json";
+import cartImageXx59 from "@/assets/cart/image-xx59-headphones.jpg";
+import cartImageXx99MarkOne from "@/assets/cart/image-xx99-mark-one-headphones.jpg";
+import cartImageXx99MarkTwo from "@/assets/cart/image-xx99-mark-two-headphones.jpg";
+import cartImageYx1 from "@/assets/cart/image-yx1-earphones.jpg";
+import cartImageZx7 from "@/assets/cart/image-zx7-speaker.jpg";
+import cartImageZx9 from "@/assets/cart/image-zx9-speaker.jpg";
+
+// Cart image mapping
+const cartImageMap: Record<string, any> = {
+  "xx59-headphones": cartImageXx59,
+  "xx99-mark-one-headphones": cartImageXx99MarkOne,
+  "xx99-mark-two-headphones": cartImageXx99MarkTwo,
+  "yx1-earphones": cartImageYx1,
+  "zx7-speaker": cartImageZx7,
+  "zx9-speaker": cartImageZx9,
+};
+
+// Sample cart data - in a real app, this would come from localStorage or state management
+const sampleCart = [
+  { slug: "xx99-mark-two-headphones", quantity: 1 },
+  { slug: "xx59-headphones", quantity: 2 },
+  { slug: "yx1-earphones", quantity: 1 },
+];
+
+// Calculate totals
+const cartItems = sampleCart.map((item) => {
+  const product = data.find((p) => p.slug === item.slug);
+  return {
+    ...item,
+    product,
+    image: cartImageMap[item.slug],
+    total: product ? product.price * item.quantity : 0,
+  };
+});
+
+const subtotal = cartItems.reduce((sum, item) => sum + item.total, 0);
+const shipping = 50;
+const vat = Math.round(subtotal * 0.2);
+const grandTotal = subtotal + shipping + vat;
 ---
 
 <Layout>
-  Home Headphones Speakers Earphones
+  <div class="mb-8">
+    <a
+      href="javascript:history.back()"
+      class="text-body text-black-light hover:text-orange inline-flex items-center gap-2 opacity-50 transition-colors"
+    >
+      Go back
+    </a>
+  </div>
 
-  <!-- Cart Modal -->
-  Cart(3) Remove All XX99 MK II x1 $2,999 XX59 x2 $899 YX1 x1 $599 Total $5,396 Checkout
-  <!-- Cart modal end -->
+  <h1 class="mb-8 text-3xl font-bold tracking-wider uppercase">Checkout</h1>
 
-  Go back Checkout Billing details Name Email address Phone number Shipping info
-  Address ZIP code City Country Payment details Payment method e-Money Cash on
-  delivery e-Money number e-money PIN The ‘Cash on Delivery’ option enables you
-  to pay in cash when our delivery courier arrives at your residence. Just make
-  sure your address is correct so that your order will not be cancelled. Summary
-  XX99 MK II x1 $2,999 XX59 x2 $899 YX1 x1 $599 Total $5,396 Shipping $10 VAT
-  $120 Grand total $5,526 Continue & pay
+  <div class="mb-32 grid grid-cols-1 gap-8 lg:grid-cols-3 lg:gap-12">
+    <!-- Checkout Form -->
+    <form id="checkout-form" class="lg:col-span-2" onsubmit="return false;">
+      <!-- Billing Details -->
+      <section class="mb-8 rounded-lg bg-white p-6">
+        <h2 class="text-orange mb-6 text-sm font-bold tracking-wider uppercase">
+          Billing details
+        </h2>
+        <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <div>
+            <label for="name" class="text-body mb-2 block text-sm font-bold">
+              Name
+            </label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              placeholder="Alexei Ward"
+              required
+              class="text-body focus:border-orange w-full rounded-lg border border-gray-300 px-4 py-3 font-bold focus:outline-none"
+            />
+          </div>
+          <div>
+            <label for="email" class="text-body mb-2 block text-sm font-bold">
+              Email address
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              placeholder="alexei@mail.com"
+              required
+              class="text-body focus:border-orange w-full rounded-lg border border-gray-300 px-4 py-3 font-bold focus:outline-none"
+            />
+          </div>
+          <div>
+            <label for="phone" class="text-body mb-2 block text-sm font-bold">
+              Phone number
+            </label>
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              placeholder="+1 202-555-0136"
+              required
+              class="text-body focus:border-orange w-full rounded-lg border border-gray-300 px-4 py-3 font-bold focus:outline-none"
+            />
+          </div>
+        </div>
+      </section>
+
+      <!-- Shipping Info -->
+      <section class="mb-8 rounded-lg bg-white p-6">
+        <h2 class="text-orange mb-6 text-sm font-bold tracking-wider uppercase">
+          Shipping info
+        </h2>
+        <div class="grid grid-cols-1 gap-6">
+          <div>
+            <label for="address" class="text-body mb-2 block text-sm font-bold">
+              Address
+            </label>
+            <input
+              type="text"
+              id="address"
+              name="address"
+              placeholder="1137 Williams Avenue"
+              required
+              class="text-body focus:border-orange w-full rounded-lg border border-gray-300 px-4 py-3 font-bold focus:outline-none"
+            />
+          </div>
+          <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+            <div>
+              <label for="zip" class="text-body mb-2 block text-sm font-bold">
+                ZIP code
+              </label>
+              <input
+                type="text"
+                id="zip"
+                name="zip"
+                placeholder="10001"
+                required
+                class="text-body focus:border-orange w-full rounded-lg border border-gray-300 px-4 py-3 font-bold focus:outline-none"
+              />
+            </div>
+            <div>
+              <label for="city" class="text-body mb-2 block text-sm font-bold">
+                City
+              </label>
+              <input
+                type="text"
+                id="city"
+                name="city"
+                placeholder="New York"
+                required
+                class="text-body focus:border-orange w-full rounded-lg border border-gray-300 px-4 py-3 font-bold focus:outline-none"
+              />
+            </div>
+            <div>
+              <label
+                for="country"
+                class="text-body mb-2 block text-sm font-bold"
+              >
+                Country
+              </label>
+              <input
+                type="text"
+                id="country"
+                name="country"
+                placeholder="United States"
+                required
+                class="text-body focus:border-orange w-full rounded-lg border border-gray-300 px-4 py-3 font-bold focus:outline-none"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Payment Details -->
+      <section class="mb-8 rounded-lg bg-white p-6">
+        <h2 class="text-orange mb-6 text-sm font-bold tracking-wider uppercase">
+          Payment details
+        </h2>
+        <div class="grid grid-cols-1 gap-6">
+          <div>
+            <label class="text-body mb-4 block text-sm font-bold">
+              Payment method
+            </label>
+            <div class="space-y-4">
+              <label
+                for="payment-emoney"
+                class="hover:border-orange flex cursor-pointer items-center rounded-lg border-2 border-gray-300 p-4 transition-colors"
+              >
+                <input
+                  type="radio"
+                  id="payment-emoney"
+                  name="payment"
+                  value="emoney"
+                  checked
+                  class="accent-orange mr-4 h-5 w-5"
+                />
+                <span class="text-body font-bold">e-Money</span>
+              </label>
+              <label
+                for="payment-cod"
+                class="hover:border-orange flex cursor-pointer items-center rounded-lg border-2 border-gray-300 p-4 transition-colors"
+              >
+                <input
+                  type="radio"
+                  id="payment-cod"
+                  name="payment"
+                  value="cod"
+                  class="accent-orange mr-4 h-5 w-5"
+                />
+                <span class="text-body font-bold">Cash on Delivery</span>
+              </label>
+            </div>
+          </div>
+          <div id="emoney-fields" class="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div>
+              <label
+                for="emoney-number"
+                class="text-body mb-2 block text-sm font-bold"
+              >
+                e-Money number
+              </label>
+              <input
+                type="text"
+                id="emoney-number"
+                name="emoneyNumber"
+                placeholder="238521993"
+                class="text-body focus:border-orange w-full rounded-lg border border-gray-300 px-4 py-3 font-bold focus:outline-none"
+              />
+            </div>
+            <div>
+              <label
+                for="emoney-pin"
+                class="text-body mb-2 block text-sm font-bold"
+              >
+                e-Money PIN
+              </label>
+              <input
+                type="text"
+                id="emoney-pin"
+                name="emoneyPin"
+                placeholder="6891"
+                class="text-body focus:border-orange w-full rounded-lg border border-gray-300 px-4 py-3 font-bold focus:outline-none"
+              />
+            </div>
+          </div>
+          <div
+            id="cod-message"
+            class="hidden items-start gap-4 rounded-lg bg-white p-6"
+          >
+            <Image
+              src={iconCashOnDelivery}
+              alt="Cash on delivery"
+              class="mt-1"
+            />
+            <p class="text-body text-black-light opacity-75">
+              The 'Cash on Delivery' option enables you to pay in cash when our
+              delivery courier arrives at your residence. Just make sure your
+              address is correct so that your order will not be cancelled.
+            </p>
+          </div>
+        </div>
+      </section>
+    </form>
+
+    <!-- Order Summary -->
+    <aside class="lg:col-span-1">
+      <div class="sticky top-24 rounded-lg bg-white p-6">
+        <h2 class="mb-6 text-lg font-bold tracking-wider uppercase">Summary</h2>
+        <div class="mb-8 space-y-6">
+          {
+            cartItems.map((item) => (
+              <div class="flex items-center gap-4">
+                <div class="bg-gray h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg">
+                  {item.image && (
+                    <Image
+                      src={item.image}
+                      alt={item.product?.name || ""}
+                      width={64}
+                      height={64}
+                      class="h-full w-full object-cover"
+                    />
+                  )}
+                </div>
+                <div class="flex-1">
+                  <p class="text-body font-bold">{item.product?.name || ""}</p>
+                  <p class="text-body text-black-light opacity-75">
+                    $ {item.product?.price.toLocaleString() || 0}
+                  </p>
+                </div>
+                <p class="text-body text-black-light opacity-75">
+                  x{item.quantity}
+                </p>
+              </div>
+            ))
+          }
+        </div>
+        <div class="mb-6 space-y-3 border-t border-gray-300 pt-6">
+          <div class="flex justify-between">
+            <span class="text-body text-black-light uppercase opacity-75">
+              Total
+            </span>
+            <span class="text-body font-bold">
+              $ {subtotal.toLocaleString()}
+            </span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-body text-black-light uppercase opacity-75">
+              Shipping
+            </span>
+            <span class="text-body font-bold">
+              $ {shipping.toLocaleString()}
+            </span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-body text-black-light uppercase opacity-75">
+              VAT (included)
+            </span>
+            <span class="text-body font-bold">$ {vat.toLocaleString()}</span>
+          </div>
+        </div>
+        <div class="mb-6 flex justify-between">
+          <span class="text-body text-black-light uppercase opacity-75">
+            Grand total
+          </span>
+          <span class="text-body text-orange font-bold">
+            $ {grandTotal.toLocaleString()}
+          </span>
+        </div>
+        <button
+          type="submit"
+          form="checkout-form"
+          class="bg-orange hover:bg-orange-light w-full py-4 font-bold text-white uppercase transition-colors"
+        >
+          Continue & pay
+        </button>
+      </div>
+    </aside>
+  </div>
 
   <!-- Success Modal -->
-  Thank you for your order You will receive an email confirmation shortly. XX99 MK
-  II x 1 $2,999 and 2 other item(s) Grand total $5,526 Back to home
-  <!-- End success modal -->
-
-  Home Headphones Speakers Earphones Audiophile is an all in one stop to fulfill
-  your audio needs. We're a small team of music lovers and sound specialists who
-  are devoted to helping you get the most out of personal audio. Come and visit
-  our demo facility - we’re open 7 days a week. Copyright 2021. All Rights
-  Reserved
+  <div
+    id="success-modal"
+    class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50"
+  >
+    <div class="mx-4 max-w-md rounded-lg bg-white p-8 md:p-12">
+      <Image
+        src={iconOrderConfirmation}
+        alt="Order confirmation"
+        class="mb-6"
+      />
+      <h2 class="mb-4 text-2xl font-bold tracking-wider uppercase">
+        Thank you for your order
+      </h2>
+      <p class="text-body text-black-light mb-6 opacity-75">
+        You will receive an email confirmation shortly.
+      </p>
+      <div class="bg-gray mb-6 rounded-lg p-6">
+        <div class="mb-4 flex items-center gap-4">
+          <div
+            class="bg-gray h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg"
+          >
+            <Image
+              src={cartImageXx99MarkTwo}
+              alt="XX99 Mark II"
+              width={64}
+              height={64}
+              class="h-full w-full object-cover"
+            />
+          </div>
+          <div class="flex-1">
+            <p class="text-body font-bold">XX99 Mark II</p>
+            <p class="text-body text-black-light opacity-75">
+              $ {cartItems[0]?.product?.price.toLocaleString() || 0}
+            </p>
+          </div>
+          <p class="text-body text-black-light opacity-75">
+            x{cartItems[0]?.quantity || 1}
+          </p>
+        </div>
+        {
+          cartItems.length > 1 && (
+            <div class="border-t border-gray-300 pt-4 text-center">
+              <p class="text-body text-black-light opacity-75">
+                and {cartItems.length - 1} other item(s)
+              </p>
+            </div>
+          )
+        }
+      </div>
+      <div class="mb-6 rounded-lg bg-black p-6">
+        <div class="mb-2 flex justify-between">
+          <span class="text-body text-white uppercase opacity-75">
+            Grand total
+          </span>
+          <span class="text-body font-bold text-white">
+            $ {grandTotal.toLocaleString()}
+          </span>
+        </div>
+      </div>
+      <a
+        href="/"
+        class="bg-orange hover:bg-orange-light block w-full py-4 text-center font-bold text-white uppercase transition-colors"
+      >
+        Back to home
+      </a>
+    </div>
+  </div>
 </Layout>
+
+<script>
+  // Handle payment method toggle
+  const paymentEmoney = document.getElementById("payment-emoney");
+  const paymentCod = document.getElementById("payment-cod");
+  const emoneyFields = document.getElementById("emoney-fields");
+  const codMessage = document.getElementById("cod-message");
+
+  if (paymentEmoney && paymentCod && emoneyFields && codMessage) {
+    paymentEmoney.addEventListener("change", () => {
+      emoneyFields.classList.remove("hidden");
+      codMessage.classList.add("hidden");
+      document.getElementById("emoney-number")?.setAttribute("required", "");
+      document.getElementById("emoney-pin")?.setAttribute("required", "");
+    });
+
+    paymentCod.addEventListener("change", () => {
+      emoneyFields.classList.add("hidden");
+      codMessage.classList.remove("hidden");
+      document.getElementById("emoney-number")?.removeAttribute("required");
+      document.getElementById("emoney-pin")?.removeAttribute("required");
+    });
+  }
+
+  // Handle form submission
+  const form = document.getElementById("checkout-form") as HTMLFormElement;
+  const successModal = document.getElementById("success-modal");
+
+  if (form && successModal) {
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      if (form.checkValidity()) {
+        successModal.classList.remove("hidden");
+        successModal.classList.add("flex");
+        document.body.style.overflow = "hidden";
+      } else {
+        form.reportValidity();
+      }
+    });
+  }
+
+  // Close modal on backdrop click
+  if (successModal) {
+    successModal.addEventListener("click", (e) => {
+      if (e.target === successModal) {
+        successModal.classList.add("hidden");
+        successModal.classList.remove("flex");
+        document.body.style.overflow = "";
+      }
+    });
+  }
+</script>
+
+<style>
+  /* Additional styles for modal backdrop */
+  #success-modal {
+    backdrop-filter: blur(4px);
+  }
+</style>

@@ -55,7 +55,9 @@ const processedProducts = await Promise.all(
             </div>
             <div class="flex h-full flex-col items-center justify-center gap-4 p-4 lg:items-start lg:justify-start">
               <h2 class="w-full text-center lg:text-start">{product.name}</h2>
-              <p class="text-body">{product.description}</p>
+              <p class="text-body text-center lg:text-start">
+                {product.description}
+              </p>
               <a
                 href={product.link}
                 class="hover:bg-black-light bg-black p-4 text-white uppercase"
@@ -92,7 +94,11 @@ const processedProducts = await Promise.all(
       if (product.variant === "split") {
         return (
           <div data-id={product.id} class="grid grid-cols-2 gap-4">
-            <Image src={product.image} alt={product.name} class="rounded-md" />
+            <Image
+              src={product.image}
+              alt={product.name}
+              class="h-full rounded-md"
+            />
             <div class="bg-gray flex flex-col items-start justify-center gap-4 rounded-md p-8">
               <h2>{product.name}</h2>
               <a

@@ -1,0 +1,77 @@
+---
+interface Props {
+  id?: string;
+  min?: number;
+  max?: number;
+  initialValue?: number;
+  inputId?: string;
+  decreaseId?: string;
+  increaseId?: string;
+}
+
+const {
+  id = "counter",
+  min = 1,
+  max,
+  initialValue = 1,
+  inputId = "quantity-input",
+  decreaseId = "decrease-quantity",
+  increaseId = "increase-quantity",
+} = Astro.props;
+---
+
+<div class="bg-gray flex items-center" id={id}>
+  <button
+    class="text-black-light hover:text-orange-light px-4 py-3 transition duration-100"
+    id={decreaseId}
+    type="button"
+  >
+    -
+  </button>
+  <input
+    type="number"
+    value={initialValue}
+    min={min}
+    max={max}
+    class="w-16 appearance-none border-0 bg-transparent text-center text-black [-moz-appearance:textfield] focus:outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+    id={inputId}
+  />
+  <button
+    class="text-black-light hover:text-orange-light px-4 py-3 transition duration-100"
+    id={increaseId}
+    type="button"
+  >
+    +
+  </button>
+</div>
+
+<script
+  define:vars={{
+    inputId,
+    decreaseId,
+    increaseId,
+    min,
+    max,
+  }}
+>
+  const quantityInput = document.getElementById(inputId);
+  const decreaseBtn = document.getElementById(decreaseId);
+  const increaseBtn = document.getElementById(increaseId);
+
+  if (decreaseBtn && quantityInput) {
+    decreaseBtn.addEventListener("click", () => {
+      const currentValue = parseInt(quantityInput.value) || min;
+      if (currentValue > min) {
+        quantityInput.value = (currentValue - 1).toString();
+      }
+    });
+  }
+
+  if (increaseBtn && quantityInput) {
+    increaseBtn.addEventListener("click", () => {
+      const currentValue = parseInt(quantityInput.value) || min;
+      const newValue = max ? Math.min(currentValue + 1, max) : currentValue + 1;
+      quantityInput.value = newValue.toString();
+    });
+  }
+</script>

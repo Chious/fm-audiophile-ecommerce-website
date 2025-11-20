@@ -1,0 +1,52 @@
+---
+interface Props {
+  variant?: "text" | "image" | "button" | "circle";
+  width?: string;
+  height?: string;
+  class?: string;
+  shimmer?: boolean;
+}
+
+const {
+  variant = "text",
+  width,
+  height,
+  class: className = "",
+  shimmer = true,
+} = Astro.props;
+
+const baseClasses = "relative overflow-hidden bg-gray-light rounded";
+let variantClasses = "";
+
+switch (variant) {
+  case "text":
+    variantClasses = "h-4";
+    break;
+  case "image":
+    // 如果沒有指定高度，使用 h-full w-full 來填充容器
+    variantClasses = height ? "" : "w-full h-full";
+    break;
+  case "button":
+    variantClasses = "h-12";
+    break;
+  case "circle":
+    variantClasses = "rounded-full";
+    break;
+}
+
+const style: Record<string, string> = {};
+if (width) style.width = width;
+if (height) style.height = height;
+
+// 使用 Tailwind 的 before 偽元素來實現 shimmer 效果
+// 注意：Tailwind v4 支援 before: 偽元素，但自定義動畫類需要在 CSS 中定義
+const shimmerClasses = shimmer
+  ? "before:absolute before:inset-0 before:-translate-x-full before:shimmer-animation before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent"
+  : "";
+---
+
+<div
+  class={`${baseClasses} ${variantClasses} ${shimmerClasses} ${className}`}
+  style={Object.keys(style).length > 0 ? style : undefined}
+>
+</div>

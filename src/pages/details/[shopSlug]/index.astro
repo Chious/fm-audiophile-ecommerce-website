@@ -1,33 +1,435 @@
 ---
 import Layout from "@/layouts/Layout.astro";
+import { Image, getImage } from "astro:assets";
 import data from "@/constants/data.json";
+import RecommandCategories from "@/components/RecommandCategories.astro";
+import BestGearSection from "@/components/BestGearSection.astro";
+import Counter from "@/components/Counter.astro";
+import Skeleton from "@/components/Skeleton.astro";
+import imgHeadphones from "@/assets/shared/desktop/image-category-thumbnail-headphones.png";
+import imgSpeakers from "@/assets/shared/desktop/image-category-thumbnail-speakers.png";
+import imgEarphones from "@/assets/shared/desktop/image-category-thumbnail-earphones.png";
 
 export async function getStaticPaths() {
   const slugs = data.map((p) => p.slug);
   return slugs.map((slug) => ({ params: { shopSlug: slug } }));
 }
+
+const { shopSlug } = Astro.params;
+const product = data.find((p) => p.slug === shopSlug);
+
+if (!product) {
+  return Astro.redirect("/404");
+}
+
+const RECOMMANDS = [
+  { title: "headphones", img: imgHeadphones, link: "/category/headphones" },
+  { title: "speakers", img: imgSpeakers, link: "/category/speakers" },
+  { title: "earphones", img: imgEarphones, link: "/category/earphones" },
+];
+
+// Load product images dynamically
+const productImages = import.meta.glob<{ default: ImageMetadata }>(
+  "@/assets/product-*/**/*.jpg",
+  { eager: true },
+);
+
+// Load gallery images
+const galleryImages = import.meta.glob<{ default: ImageMetadata }>(
+  "@/assets/product-*/**/image-gallery-*.jpg",
+  { eager: true },
+);
+
+// Load shared images for "others" products
+const sharedImages = import.meta.glob<{ default: ImageMetadata }>(
+  "@/assets/shared/**/*.jpg",
+  { eager: true },
+);
+
+// Helper function to find image by path pattern
+// Prefers desktop images, falls back to tablet, then mobile
+function findImageBySlug(
+  slug: string,
+  images: Record<string, any>,
+  pattern: string,
+): ImageMetadata | null {
+  // Try desktop first
+  let key = Object.keys(images).find(
+    (path) =>
+      path.includes(`product-${slug}`) &&
+      path.includes(pattern) &&
+      path.includes("/desktop/"),
+  );
+  // Fall back to tablet
+  if (!key) {
+    key = Object.keys(images).find(
+      (path) =>
+        path.includes(`product-${slug}`) &&
+        path.includes(pattern) &&
+        path.includes("/tablet/"),
+    );
+  }
+  // Fall back to mobile
+  if (!key) {
+    key = Object.keys(images).find(
+      (path) => path.includes(`product-${slug}`) && path.includes(pattern),
+    );
+  }
+  return key ? images[key].default : null;
+}
+
+// Process product main image
+const productImage = findImageBySlug(
+  product.slug,
+  productImages,
+  "image-product",
+);
+let productImageSrc: string | undefined;
+if (productImage) {
+  const processedImage = await getImage({ src: productImage });
+  productImageSrc = processedImage.src;
+}
+
+// Process gallery images
+const galleryFirst = findImageBySlug(
+  product.slug,
+  galleryImages,
+  "image-gallery-1",
+);
+const gallerySecond = findImageBySlug(
+  product.slug,
+  galleryImages,
+  "image-gallery-2",
+);
+const galleryThird = findImageBySlug(
+  product.slug,
+  galleryImages,
+  "image-gallery-3",
+);
+
+let galleryFirstSrc: string | undefined;
+let gallerySecondSrc: string | undefined;
+let galleryThirdSrc: string | undefined;
+
+if (galleryFirst) {
+  const processed = await getImage({ src: galleryFirst });
+  galleryFirstSrc = processed.src;
+}
+if (gallerySecond) {
+  const processed = await getImage({ src: gallerySecond });
+  gallerySecondSrc = processed.src;
+}
+if (galleryThird) {
+  const processed = await getImage({ src: galleryThird });
+  galleryThirdSrc = processed.src;
+}
+
+// Process "others" products images
+const othersWithImages = await Promise.all(
+  product.others.map(async (other) => {
+    // Find image by matching slug in shared images path
+    // The shared images are named like "image-xx99-mark-one-headphones.jpg"
+    const imageKey = Object.keys(sharedImages).find((path) => {
+      // Convert slug to match image naming pattern
+      // e.g., "xx99-mark-one-headphones" should match "image-xx99-mark-one-headphones"
+      const slugPattern = `image-${other.slug}`;
+      return path.toLowerCase().includes(slugPattern.toLowerCase());
+    });
+    const image = imageKey ? sharedImages[imageKey].default : null;
+    let imageSrc: string | undefined;
+    if (image) {
+      const processedImage = await getImage({ src: image });
+      imageSrc = processedImage.src;
+    }
+    return { ...other, imageSrc };
+  }),
+);
 ---
 
 <Layout>
-  Home Headphones Speakers Earphones Headphones New product XX99 Mark II
-  Headphones The new XX99 Mark II headphones is the pinnacle of pristine audio.
-  It redefines your premium headphone experience by reproducing the balanced
-  depth and precision of studio-quality sound. See product XX99 Mark I
-  Headphones As the gold standard for headphones, the classic XX99 Mark I offers
-  detailed and accurate audio reproduction for audiophiles, mixing engineers,
-  and music aficionados alike in studios and on the go. See product XX59
-  Headphones Enjoy your audio almost anywhere and customize it to your specific
-  tastes with the XX59 headphones. The stylish yet durable versatile wireless
-  headset is a brilliant companion at home or on the move. See product
-  Headphones Shop Speakers Shop Earphones Shop Bringing you the best audio gear
-  Located at the heart of New York City, Audiophile is the premier store for
-  high end headphones, earphones, speakers, and audio accessories. We have a
-  large showroom and luxury demonstration rooms available for you to browse and
-  experience a wide range of our products. Stop by our store to meet some of the
-  fantastic people who make Audiophile the best place to buy your portable audio
-  equipment. Home Headphones Speakers Earphones Audiophile is an all in one stop
-  to fulfill your audio needs. We're a small team of music lovers and sound
-  specialists who are devoted to helping you get the most out of personal audio.
-  Come and visit our demo facility - we’re open 7 days a week. Copyright 2021.
-  All Rights Reserved
+  <section class="container mx-auto my-8 px-4">
+    <a
+      href={`/category/${product.category}`}
+      class="text-black-light hover:text-orange-light mt-12 inline-block uppercase transition duration-100"
+    >
+      Go back
+    </a>
+  </section>
+
+  <!-- Product Details Section -->
+  <section
+    class="container mx-auto my-12 grid grid-cols-1 gap-12 px-4 lg:grid-cols-2 lg:gap-32"
+  >
+    <!-- Product Image -->
+    <div
+      class="bg-gray-light relative aspect-square overflow-hidden rounded-lg md:aspect-auto md:min-h-[400px]"
+    >
+      {
+        productImageSrc ? (
+          <img
+            src={productImageSrc}
+            alt={product.name}
+            class="h-full w-full object-cover"
+            loading="lazy"
+          />
+        ) : (
+          <Skeleton variant="image" class="h-full w-full" />
+        )
+      }
+    </div>
+
+    <!-- Product Info -->
+    <div class="flex flex-col items-center justify-center gap-6 lg:items-start">
+      {
+        product.new ? (
+          <h5 class="text-orange text-center lg:text-start">NEW PRODUCT</h5>
+        ) : (
+          <div class="h-6" />
+        )
+      }
+      {
+        product.name ? (
+          <h2 class="flex min-h-[44px] w-full items-center text-center uppercase lg:text-start">
+            {product.name}
+          </h2>
+        ) : (
+          <Skeleton variant="text" width="80%" height="44px" class="mb-2" />
+        )
+      }
+      {
+        product.description ? (
+          <p class="text-body min-h-[75px] text-center text-black lg:text-start">
+            {product.description}
+          </p>
+        ) : (
+          <div class="min-h-[75px] w-full space-y-2">
+            <Skeleton variant="text" width="100%" height="20px" />
+            <Skeleton variant="text" width="90%" height="20px" />
+            <Skeleton variant="text" width="75%" height="20px" />
+          </div>
+        )
+      }
+      {
+        product.price ? (
+          <p class="flex min-h-[28px] items-center text-lg font-bold">
+            $ {product.price.toLocaleString()}
+          </p>
+        ) : (
+          <Skeleton variant="text" width="120px" height="28px" />
+        )
+      }
+
+      <!-- Quantity and Add to Cart -->
+      <div class="flex w-full gap-4">
+        <Counter
+          inputId="quantity-input"
+          decreaseId="decrease-quantity"
+          increaseId="increase-quantity"
+        />
+        <button
+          class="bg-orange hover:bg-orange-light flex-1 px-8 py-3 font-bold text-white uppercase transition duration-100"
+          id="add-to-cart"
+        >
+          Add to cart
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features and In the Box Section -->
+  <section
+    class="container mx-auto my-20 grid grid-cols-1 gap-12 px-4 lg:grid-cols-2 lg:gap-32"
+  >
+    <!-- Features -->
+    <div>
+      <h3 class="mb-6 text-2xl font-bold uppercase">Features</h3>
+      {
+        product.features ? (
+          <p class="text-body text-black-light min-h-[200px] whitespace-pre-line">
+            {product.features}
+          </p>
+        ) : (
+          <div class="min-h-[200px] space-y-3">
+            <Skeleton variant="text" width="100%" height="20px" />
+            <Skeleton variant="text" width="100%" height="20px" />
+            <Skeleton variant="text" width="95%" height="20px" />
+            <Skeleton variant="text" width="90%" height="20px" />
+            <Skeleton variant="text" width="85%" height="20px" />
+          </div>
+        )
+      }
+    </div>
+
+    <!-- In the Box -->
+    <div>
+      <h3 class="mb-6 text-2xl font-bold uppercase">In the box</h3>
+      <ul class="flex flex-col gap-2">
+        {
+          product.includes.map((item) => (
+            <li class="flex items-center gap-4">
+              <span class="text-orange font-bold">{item.quantity}x</span>
+              <span class="text-black-light">{item.item}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- Gallery Section -->
+  <section
+    class="container mx-auto my-20 grid grid-cols-1 gap-4 px-4 md:grid-cols-2"
+  >
+    <div class="grid grid-cols-1 gap-4">
+      {
+        galleryFirstSrc ? (
+          <div class="bg-gray-light relative aspect-square overflow-hidden rounded-lg md:aspect-auto md:min-h-[280px]">
+            <img
+              src={galleryFirstSrc}
+              alt={`${product.name} gallery image 1`}
+              class="h-full w-full object-cover"
+              loading="lazy"
+            />
+          </div>
+        ) : (
+          <Skeleton
+            variant="image"
+            class="aspect-square md:aspect-auto md:min-h-[280px]"
+          />
+        )
+      }
+      {
+        gallerySecondSrc ? (
+          <div class="bg-gray-light relative aspect-square overflow-hidden rounded-lg md:aspect-auto md:min-h-[280px]">
+            <img
+              src={gallerySecondSrc}
+              alt={`${product.name} gallery image 2`}
+              class="h-full w-full object-cover"
+              loading="lazy"
+            />
+          </div>
+        ) : (
+          <Skeleton
+            variant="image"
+            class="aspect-square md:aspect-auto md:min-h-[280px]"
+          />
+        )
+      }
+    </div>
+    {
+      galleryThirdSrc ? (
+        <div class="bg-gray-light relative aspect-square overflow-hidden rounded-lg md:row-span-2 md:aspect-auto md:min-h-[592px]">
+          <img
+            src={galleryThirdSrc}
+            alt={`${product.name} gallery image 3`}
+            class="h-full w-full object-cover"
+            loading="lazy"
+          />
+        </div>
+      ) : (
+        <Skeleton
+          variant="image"
+          class="aspect-square md:row-span-2 md:aspect-auto md:min-h-[592px]"
+        />
+      )
+    }
+  </section>
+
+  <!-- You May Also Like Section -->
+  <section class="container mx-auto my-20 px-4">
+    <h3 class="mb-12 text-center text-2xl font-bold uppercase">
+      You may also like
+    </h3>
+    <div class="grid grid-cols-1 gap-8 md:grid-cols-3">
+      {
+        othersWithImages.map((other) => (
+          <div class="flex flex-col items-center gap-6">
+            <div class="bg-gray-light relative aspect-square w-full overflow-hidden rounded-lg md:aspect-auto md:min-h-[256px]">
+              {other.imageSrc ? (
+                <img
+                  src={other.imageSrc}
+                  alt={other.name}
+                  class="h-full w-full object-cover"
+                  loading="lazy"
+                />
+              ) : (
+                <Skeleton variant="image" class="h-full w-full" />
+              )}
+            </div>
+            {other.name ? (
+              <h5 class="flex min-h-[28px] items-center text-center text-xl font-bold uppercase">
+                {other.name}
+              </h5>
+            ) : (
+              <Skeleton variant="text" width="150px" height="28px" />
+            )}
+            <a
+              href={`/details/${other.slug}`}
+              class="bg-orange hover:bg-orange-light inline-block px-8 py-3 font-bold text-white uppercase transition duration-100"
+            >
+              See product
+            </a>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <RecommandCategories categories={RECOMMANDS} />
+
+  <BestGearSection />
+
+  <script
+    define:vars={{
+      productSlug: product.slug,
+      productName: product.name,
+      productPrice: product.price,
+    }}
+  >
+    // Add to cart functionality
+    const addToCartBtn = document.getElementById("add-to-cart");
+    const quantityInput = document.getElementById("quantity-input");
+
+    if (addToCartBtn && quantityInput) {
+      addToCartBtn.addEventListener("click", () => {
+        const quantity = parseInt(quantityInput.value) || 1;
+        const productData = {
+          slug: productSlug,
+          name: productName,
+          price: productPrice,
+          quantity: quantity,
+        };
+
+        // Get existing cart from localStorage
+        const existingCart = localStorage.getItem("cart");
+        const cart = existingCart ? JSON.parse(existingCart) : [];
+
+        // Check if product already exists in cart
+        const existingIndex = cart.findIndex(
+          (item) => item.slug === productData.slug,
+        );
+
+        if (existingIndex >= 0) {
+          // Update quantity if product exists
+          cart[existingIndex].quantity += quantity;
+        } else {
+          // Add new product to cart
+          cart.push(productData);
+        }
+
+        // Save to localStorage
+        localStorage.setItem("cart", JSON.stringify(cart));
+
+        // Show feedback to user
+        if (addToCartBtn) {
+          addToCartBtn.textContent = "Added!";
+          setTimeout(() => {
+            if (addToCartBtn) {
+              addToCartBtn.textContent = "Add to cart";
+            }
+          }, 2000);
+        }
+      });
+    }
+  </script>
 </Layout>

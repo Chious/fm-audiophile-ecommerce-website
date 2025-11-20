@@ -7,11 +7,11 @@ import heroImage from "@/assets/home/tablet/image-header.jpg";
 import imgHeadphones from "@/assets/shared/desktop/image-category-thumbnail-headphones.png";
 import imgSpeakers from "@/assets/shared/desktop/image-category-thumbnail-speakers.png";
 import imgEarphones from "@/assets/shared/desktop/image-category-thumbnail-earphones.png";
-import arrowIcon from "@/assets/shared/desktop/icon-arrow-right.svg";
 import imageZx9Speaker from "@/assets/home/desktop/image-speaker-zx9.png";
 import imageZx7Speaker from "@/assets/home/desktop/image-speaker-zx7.jpg";
 import imageEarphoneYx1 from "@/assets/home/desktop/image-earphones-yx1.jpg";
 import patternCircles from "@/assets/home/desktop/pattern-circles.svg";
+import RecommandCategories from "@/components/RecommandCategories.astro";
 
 const RECOMMANDS = [
   { title: "headphones", img: imgHeadphones, link: "/category/headphones" },
@@ -84,30 +84,7 @@ const RECOMMAND_PRODUCTS = [
     </div>
   </section>
 
-  <section class="my-20 grid grid-cols-1 gap-8 md:grid-cols-3">
-    {
-      RECOMMANDS.map((data) => (
-        <div class="relative overflow-hidden rounded-lg p-8 text-center">
-          <div class="bg-gray absolute inset-x-0 bottom-0 h-2/3" />
-          <Image
-            src={data.img}
-            alt={data.title}
-            class="relative z-10 mx-auto h-40 w-full object-contain"
-          />
-          <h5 class="relative z-10 mb-4">{data.title}</h5>
-          <a
-            href="/headphones"
-            class="text-black-light hover:text-orange-light relative z-10 inline-flex items-center uppercase"
-          >
-            Shop{" "}
-            <span class="ml-2">
-              <Image src={arrowIcon} alt="arrow" />
-            </span>
-          </a>
-        </div>
-      ))
-    }
-  </section>
+  <RecommandCategories categories={RECOMMANDS} />
 
   <FeaturedProducts products={RECOMMAND_PRODUCTS} />
 

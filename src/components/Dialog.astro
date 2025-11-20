@@ -1,0 +1,166 @@
+---
+interface Props {
+  position?: "top-right" | "center";
+  id?: string;
+}
+
+const { position = "top-right", id = "cart-dialog" } = Astro.props;
+---
+
+<div
+  id={`${id}-backdrop`}
+  class={`dialog-backdrop dialog-backdrop-${position} hidden`}
+>
+  <div id={id} class="dialog-content">
+    <slot />
+  </div>
+</div>
+
+<style>
+  /* Backdrop only covers main area (not header) */
+  .dialog-backdrop {
+    position: fixed;
+    /* top will be set dynamically via JavaScript to match header height */
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 40;
+    display: flex;
+    padding: 1rem;
+  }
+
+  .dialog-backdrop.hidden {
+    display: none;
+  }
+
+  /* Top-right positioning (default) */
+  .dialog-backdrop-top-right {
+    align-items: flex-start;
+    justify-content: flex-end;
+  }
+
+  /* Center positioning */
+  .dialog-backdrop-center {
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Dialog content */
+  .dialog-content {
+    background: white;
+    border-radius: 8px;
+    padding: 2rem;
+    max-width: 377px;
+    width: calc(100% - 2rem);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Center positioning adjustments */
+  .dialog-backdrop-center .dialog-content {
+    margin: auto;
+  }
+
+  /* Top-right positioning adjustments */
+  .dialog-backdrop-top-right .dialog-content {
+    margin-top: 1rem;
+    margin-right: 0;
+  }
+
+  /* Prevent main scrolling when dialog is open */
+  main.dialog-open {
+    overflow: hidden;
+  }
+
+  /* Mobile responsive */
+  @media (max-width: 768px) {
+    .dialog-backdrop {
+      padding: 0;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .dialog-content {
+      max-width: 100%;
+      width: 100%;
+      border-radius: 8px 8px 0 0;
+      margin: 0;
+    }
+
+    /* On mobile, always use bottom positioning */
+    .dialog-backdrop-center .dialog-content,
+    .dialog-backdrop-top-right .dialog-content {
+      margin-top: 0;
+      margin-right: 0;
+    }
+  }
+</style>
+
+<script>
+  // Calculate header height and set backdrop position
+  function updateBackdropPosition() {
+    const backdrops = document.querySelectorAll(
+      ".dialog-backdrop:not(.hidden)",
+    );
+    const header = document.querySelector("header");
+
+    if (!header) return;
+
+    const headerHeight = header.offsetHeight;
+
+    backdrops.forEach((backdrop) => {
+      (backdrop as HTMLElement).style.top = `${headerHeight}px`;
+    });
+  }
+
+  // Update position on load and resize
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => {
+      updateBackdropPosition();
+    });
+  } else {
+    updateBackdropPosition();
+  }
+
+  window.addEventListener("resize", updateBackdropPosition);
+
+  // Expose function to show/hide dialog
+  (window as any).showDialog = (dialogId: any) => {
+    const backdrop = document.getElementById(`${dialogId}-backdrop`);
+    if (backdrop) {
+      backdrop.classList.remove("hidden");
+      updateBackdropPosition();
+      const mainElement = document.querySelector("main");
+      if (mainElement) {
+        mainElement.classList.add("dialog-open");
+      }
+    }
+  };
+
+  (window as any).hideDialog = (dialogId: any) => {
+    const backdrop = document.getElementById(`${dialogId}-backdrop`);
+    if (backdrop) {
+      backdrop.classList.add("hidden");
+      const mainElement = document.querySelector("main");
+      if (mainElement) {
+        mainElement.classList.remove("dialog-open");
+      }
+    }
+  };
+
+  // Close dialog when clicking backdrop
+  document.addEventListener("click", (e) => {
+    const target = e.target as HTMLElement;
+    if (
+      target &&
+      target.classList &&
+      target.classList.contains("dialog-backdrop")
+    ) {
+      const dialogId = target.id ? target.id.replace("-backdrop", "") : "";
+      if (dialogId) {
+        (window as any).hideDialog(dialogId);
+      }
+    }
+  });
+</script>

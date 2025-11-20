@@ -1,0 +1,41 @@
+---
+import { Image } from "astro:assets";
+import arrowIcon from "@/assets/shared/desktop/icon-arrow-right.svg";
+
+interface Category {
+  title: string;
+  img: ImageMetadata;
+  link: string;
+}
+
+interface Props {
+  categories: Category[];
+}
+
+const { categories } = Astro.props;
+---
+
+<section class="my-20 grid grid-cols-1 gap-8 md:grid-cols-3">
+  {
+    categories.map((data) => (
+      <div class="relative overflow-hidden rounded-lg p-8 text-center">
+        <div class="bg-gray absolute inset-x-0 bottom-0 h-2/3" />
+        <Image
+          src={data.img}
+          alt={data.title}
+          class="relative z-10 mx-auto h-40 w-full object-contain"
+        />
+        <h5 class="relative z-10 mb-4">{data.title}</h5>
+        <a
+          href={data.link}
+          class="text-black-light hover:text-orange-light relative z-10 inline-flex items-center uppercase transition duration-100"
+        >
+          Shop{" "}
+          <span class="ml-2">
+            <Image src={arrowIcon} alt="arrow" />
+          </span>
+        </a>
+      </div>
+    ))
+  }
+</section>
