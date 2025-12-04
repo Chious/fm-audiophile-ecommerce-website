@@ -1,6 +1,7 @@
 import { navItems, socialLinks } from "@/data/nav";
 import Link from "next/link";
-import R2PresignedImage from "./R2PresignedImage";
+import Image from "next/image";
+import { getBlobImageUrl } from "@/utils/r2-image";
 
 export default function Footer() {
   return (
@@ -8,12 +9,12 @@ export default function Footer() {
       <div className="absolute inset-0 bg-black -z-10 left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] w-screen" />
 
       <div className="decorate-line w-[200px] h-1.5 bg-orange relative left-1/2 md:left-0 -translate-x-1/2 md:translate-x-0" />
-      <R2PresignedImage
+      <Image
         alt="logo"
-        src="./assets/shared/desktop/logo.svg"
+        src={getBlobImageUrl("./assets/shared/desktop/logo.svg")}
         width={100}
         height={30}
-        fetchPriority="high"
+        priority
       />
       <ul className="flex gap-8">
         {navItems.map((nav) => (
@@ -35,8 +36,8 @@ export default function Footer() {
         <div className="social links flex gap-4 flex-row items-center justify-center">
           {socialLinks.map((link) => (
             <Link key={link.name} href={link.link}>
-              <R2PresignedImage
-                src={link.image}
+              <Image
+                src={getBlobImageUrl(link.image)}
                 alt={link.name}
                 width={20}
                 height={20}

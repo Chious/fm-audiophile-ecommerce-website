@@ -1,9 +1,9 @@
 import { Elysia } from "elysia";
 import openapi from "@elysiajs/openapi";
-import { r2 } from "@/api/modules/r2";
 import { cart } from "@/api/modules/cart";
 import { products } from "@/api/modules/products";
 import { checkout } from "@/api/modules/checkout";
+import { admin } from "@/api/modules/admin";
 
 const app = new Elysia({ prefix: "/api" })
   .use(
@@ -13,14 +13,27 @@ const app = new Elysia({ prefix: "/api" })
         info: {
           title: "Audiophile API",
           description:
-            "API for products, cart, checkout, and R2 assets for the Audiophile ecommerce site.",
+            "API for products, cart and checkout for the Audiophile ecommerce site.",
           version: "1.0.0",
         },
         tags: [
-          { name: "products", description: "Product catalogue endpoints" },
-          { name: "cart", description: "Cart calculation endpoints" },
-          { name: "checkout", description: "Checkout and order endpoints" },
-          { name: "r2", description: "R2 presigned URL endpoints" },
+          {
+            name: "products",
+            description: "Product catalogue endpoints. 商品目錄相關 API。",
+          },
+          {
+            name: "cart",
+            description: "Cart calculation endpoints. 購物車計算與合計 API。",
+          },
+          {
+            name: "checkout",
+            description: "Checkout and order endpoints. 結帳流程相關 API。",
+          },
+          {
+            name: "admin",
+            description:
+              "Admin management endpoints for products, categories, and clients. 商品／分類／客戶後台管理用 API（不建議直接對外公開）。",
+          },
         ],
       },
     })
@@ -32,10 +45,10 @@ const app = new Elysia({ prefix: "/api" })
         "Simple health-check style endpoint for the Audiophile API. 可用來確認 API 是否正常運作。",
     },
   })
-  .use(r2)
   .use(cart)
   .use(products)
-  .use(checkout);
+  .use(checkout)
+  .use(admin);
 
 export type App = typeof app;
 

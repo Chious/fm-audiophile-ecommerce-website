@@ -3,10 +3,11 @@
 import { useEffect, useState } from "react";
 import { ShoppingCart } from "lucide-react";
 import Link from "next/link";
-import R2PresignedImage from "./R2PresignedImage";
+import Image from "next/image";
 import { getCartFromStorage } from "@/utils/cartStorage";
 import { api } from "@/utils/eden";
 import type { product } from "@/api/modules/products/model";
+import { getResponsiveBlobImageUrl } from "@/utils/r2-image";
 
 type CartItem = {
   slug: string;
@@ -139,8 +140,8 @@ export default function CartButtonWithModal() {
                     <div key={item.slug} className="flex items-center gap-4">
                       {item.product && (
                         <>
-                          <R2PresignedImage
-                            src={item.product.image}
+                          <Image
+                            src={getResponsiveBlobImageUrl(item.product.image)}
                             alt={item.product.name}
                             width={48}
                             height={48}

@@ -1,23 +1,19 @@
 import type { NextConfig } from "next";
 
-const bucketName = process.env.R2_BUCKET_NAME;
-const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
+// 允許從 Vercel Blob 網域載入圖片
+const BLOB_BASE_URL =
+  process.env.NEXT_PUBLIC_BLOB_BASE_URL ||
+  process.env.BLOB_URL ||
+  "https://m2ff5tamt4ozplkq.public.blob.vercel-storage.com";
 
-const getR2Hostname = (): string => {
-  if (!bucketName || !accountId) {
-    // TODO: throw error
-    return "";
-  }
-
-  return `${bucketName}.${accountId}.r2.cloudflarestorage.com`;
-};
+const blobUrl = new URL(BLOB_BASE_URL);
 
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: "https",
-        hostname: getR2Hostname(),
+        protocol: blobUrl.protocol.replace(":", "") as "http" | "https",
+        hostname: blobUrl.hostname,
       },
     ],
   },

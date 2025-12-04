@@ -1,35 +1,40 @@
 /**
- * R2 圖片工具函數
- * 將相對路徑轉換為 R2 公共 URL
+ * 圖片 URL 工具函數（使用 Vercel Blob）
+ * 將相對路徑轉換為 Vercel Blob 公共 URL
  */
 
-const R2_BASE_URL =
-  process.env.NEXT_PUBLIC_R2_BASE_URL ||
-  "https://ebfb0cb50a1b67772c2ab6d0c1310129.r2.cloudflarestorage.com/fm-audiophile-ecommerce-website";
+const BLOB_BASE_URL =
+  process.env.NEXT_PUBLIC_BLOB_BASE_URL ||
+  process.env.BLOB_URL ||
+  "https://m2ff5tamt4ozplkq.public.blob.vercel-storage.com";
 
-/**
- * 將相對路徑轉換為 R2 URL
- * @param path 相對路徑，例如: "./assets/product-yx1-earphones/mobile/image-product.jpg"
- * @returns R2 完整 URL
- */
-export function getR2ImageUrl(path: string): string {
+function normalizePath(path: string): string {
   // 移除 "./" 前綴（如果存在）
   let cleanPath = path.replace(/^\.\//, "");
 
-  // 移除 "assets/" 前綴（如果存在），因為上傳時已經移除了
+  // 移除 "assets/" 前綴（如果存在），因為上傳到 Blob 時已經移除了
   cleanPath = cleanPath.replace(/^assets\//, "");
 
-  // 構建完整 URL
-  return `${R2_BASE_URL}/${cleanPath}`;
+  return cleanPath;
+}
+
+/**
+ * 將相對路徑轉換為 Vercel Blob URL
+ * @param path 相對路徑，例如: "./assets/product-yx1-earphones/mobile/image-product.jpg"
+ * @returns Blob 完整 URL
+ */
+export function getBlobImageUrl(path: string): string {
+  const cleanPath = normalizePath(path);
+  return `${BLOB_BASE_URL}/${cleanPath}`;
 }
 
 /**
  * 獲取響應式圖片 URL
  * @param imageObj 包含 mobile, tablet, desktop 的圖片對象
  * @param device 設備類型: 'mobile' | 'tablet' | 'desktop'
- * @returns R2 完整 URL
+ * @returns Blob 完整 URL
  */
-export function getResponsiveImageUrl(
+export function getResponsiveBlobImageUrl(
   imageObj: {
     mobile?: string;
     tablet?: string;
@@ -43,5 +48,9 @@ export function getResponsiveImageUrl(
     imageObj.tablet ||
     imageObj.mobile ||
     "";
-  return getR2ImageUrl(path);
+  return getBlobImageUrl(path);
 }
+
+// 向後相容的別名（舊名稱仍可使用）
+export const getR2ImageUrl = getBlobImageUrl;
+export const getResponsiveImageUrl = getResponsiveBlobImageUrl;
