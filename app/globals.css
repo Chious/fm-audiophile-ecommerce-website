@@ -19,6 +19,9 @@
   /* Font Weights */
   --font-weight-medium: 500;
   --font-weight-bold: 700;
+
+  /* Icon */
+  --image-icon-arrow-right: url("./assets/shared/desktop/icon-arrow-right.svg");
 }
 
 @layer base {
@@ -117,5 +120,14 @@
   /* Shimmer Animation */
   .shimmer-animation {
     animation: shimmer 1.5s infinite;
+  }
+
+  /* Arrow Icon After */
+  .after-arrow-right::after {
+    content: url("/icon-arrow-right.svg");
+    display: inline-block;
+    width: 0.5rem;
+    margin-left: 0.8125rem;
+    vertical-align: middle;
   }
 }

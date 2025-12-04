@@ -32,6 +32,12 @@ export const r2 = new Elysia({ prefix: "/r2" }).get(
     }
   },
   {
+    detail: {
+      tags: ["r2"],
+      summary: "Generate R2 presigned URL",
+      description:
+        "Generate a temporary signed URL for accessing a private Cloudflare R2 object (e.g. product images) without exposing the bucket publicly. <br/> 用來產生 Cloudflare R2 物件的預簽名網址，讓前端可以在有限時間內安全讀取圖片或檔案。",
+    },
     query: presignedUrlQuery,
     response: {
       200: presignedUrlResponse,

@@ -26,7 +26,7 @@
       "@/lib/*": ["./lib/*"],
       "@/types/*": ["./types/*"],
       "@/utils/*": ["./utils/*"],
-      "@/assets/*": ["./assets/*"],
+      "@/assets/*": ["./app/assets/*"],
       "@/styles/*": ["./styles/*"]
     }
   },
