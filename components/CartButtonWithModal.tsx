@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { getCartFromStorage } from "@/utils/cartStorage";
+import { clearCartStorage, getCartFromStorage } from "@/utils/cartStorage";
 import { api } from "@/utils/eden";
 import type { product } from "@/api/modules/products/model";
 import { getResponsiveBlobImageUrl } from "@/utils/r2-image";
@@ -101,6 +101,15 @@ export default function CartButtonWithModal() {
   const itemCount =
     cart?.cartItems?.reduce((sum, item) => sum + item.quantity, 0) ?? 0;
 
+  const handleClose = () => {
+    setIsCartOpen(false);
+  };
+
+  const handleClearCart = () => {
+    clearCartStorage();
+    setCart(null);
+  };
+
   return (
     <>
       <button
@@ -118,16 +127,22 @@ export default function CartButtonWithModal() {
       </button>
 
       {isCartOpen && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex justify-center px-4">
-          <div className="mt-24 w-full max-w-md bg-white rounded-lg p-6 shadow-xl">
+        <div
+          className="fixed inset-0 bg-black/40 z-50 flex justify-center px-4 top-20"
+          onClick={handleClose}
+        >
+          <div
+            className="w-full max-w-md bg-white rounded-lg p-6 shadow-xl absolute right-4 top-8"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between mb-6">
-              <h6 className="uppercase">Cart</h6>
+              <h6 className="uppercase text-black">{`Cart(${itemCount})`}</h6>
               <button
                 type="button"
-                className="text-body text-black/50 hover:text-orange"
-                onClick={() => setIsCartOpen(false)}
+                className="text-body text-black/50 hover:text-orange underline"
+                onClick={handleClearCart}
               >
-                Close
+                Remove All
               </button>
             </div>
 

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { product } from "@/api/modules/products/model";
 import { addItemToCart } from "@/utils/cartStorage";
+import { toast } from "sonner";
 
 interface ProductAddToCartProps {
   product: product;
@@ -23,6 +24,7 @@ export default function ProductAddToCart({ product }: ProductAddToCartProps) {
     addItemToCart(product.slug, quantity);
     // Reset quantity after adding to cart
     setQuantity(1);
+    toast.success("Product has been add to the cart!");
   };
 
   return (

@@ -38,17 +38,17 @@ export const socialLinks = [
 export const categoryLinks = [
   {
     name: "Headphones",
-    image: "./assets/product-yx1-earphones/mobile/image-product.jpg",
+    image: "./assets/shared/desktop/image-category-thumbnail-headphones.png",
     link: "/product/headphones",
   },
   {
     name: "Speakers",
-    image: "./assets/product-yx1-earphones/mobile/image-product.jpg",
+    image: "./assets/shared/desktop/image-category-thumbnail-speakers.png",
     link: "/product/speakers",
   },
   {
     name: "Earphones",
-    image: "./assets/product-yx1-earphones/mobile/image-product.jpg",
+    image: "./assets/shared/desktop/image-category-thumbnail-earphones.png",
     link: "/product/earphones",
   },
 ];

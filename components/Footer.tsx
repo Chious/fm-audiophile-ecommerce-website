@@ -18,19 +18,25 @@ export default function Footer() {
       />
       <ul className="flex gap-8">
         {navItems.map((nav) => (
-          <Link href={nav.link} key={nav.name}>
-            <li className="uppercase text-white">{nav.name}</li>
-          </Link>
+          <li key={nav.name}>
+            <Link
+              href={nav.link}
+              key={nav.name}
+              className="uppercase text-white hover:text-orange transition-colors"
+            >
+              {nav.name}
+            </Link>
+          </li>
         ))}
       </ul>
-      <p className="text-subtitle text-gray/20 text-center md:text-start">
+      <p className="text-body text-gray/20 text-center md:text-start">
         {`Audiophile is an all in one stop to fulfill your audio needs. We're a
         small team of music lovers and sound specialists who are devoted to
         helping you get the most out of personal audio. Come and visit our demo
         facility - we're open 7 days a week.`}
       </p>
       <div className="flex flex-col md:flex-row gap-8 justify-between">
-        <p className="text-gray/20 text-subtitle text-center">
+        <p className="text-gray/20 text-body text-center">
           Copyright 2021. All Rights Reserved
         </p>
         <div className="social links flex gap-4 flex-row items-center justify-center">

@@ -28,4 +28,3 @@ export function logout(): void {
   sessionStorage.removeItem(AUTH_KEY);
   sessionStorage.removeItem(EMAIL_KEY);
 }
-

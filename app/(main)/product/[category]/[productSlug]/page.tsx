@@ -1,9 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import {
-  getBlobImageUrl,
-  getResponsiveBlobImageUrl,
-} from "@/utils/r2-image";
+import { getBlobImageUrl, getResponsiveBlobImageUrl } from "@/utils/r2-image";
 import ProductAddToCart from "@/components/ProductAddToCart";
 import { ProductService } from "@/api/modules/products/service";
 import productsData from "@/data/data.json";
@@ -62,7 +59,7 @@ export default async function ProductDetailPage({
   return (
     <div className="container mx-auto px-4 md:px-6 lg:px-8 max-w-7xl">
       {/* Hero Section */}
-      <section className="mb-16 md:mb-24 lg:mb-32">
+      <section className="mb-16 md:mb-24 lg:mb-32 mt-8">
         <Link
           href={`/product/${category}`}
           className="text-body text-black/50 hover:text-orange mb-6 md:mb-14 inline-block transition-colors"
@@ -71,13 +68,14 @@ export default async function ProductDetailPage({
         </Link>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 lg:gap-32 items-center">
           {/* Product Image */}
-          <div className="w-full">
+          <div className="w-full relative aspect-square">
             <Image
               src={getResponsiveBlobImageUrl(product.image)}
               alt={product.name}
-              width={600}
-              height={600}
+              fill
               className="w-full h-auto rounded-lg"
+              placeholder="blur"
+              blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAwIiBoZWlnaHQ9IjYwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNjAwIiBoZWlnaHQ9IjYwMCIgZmlsbD0iI2UwZTBlMCIvPjwvc3ZnPg=="
             />
           </div>
 
