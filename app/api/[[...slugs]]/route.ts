@@ -4,6 +4,7 @@ import { cart } from "@/api/modules/cart";
 import { products } from "@/api/modules/products";
 import { checkout } from "@/api/modules/checkout";
 import { admin } from "@/api/modules/admin";
+import { health } from "@/api/modules/health";
 
 const app = new Elysia({ prefix: "/api" })
   .use(
@@ -17,6 +18,10 @@ const app = new Elysia({ prefix: "/api" })
           version: "1.0.0",
         },
         tags: [
+          {
+            name: "health",
+            description: "Health check endpoints. 健康檢查 API。",
+          },
           {
             name: "products",
             description: "Product catalogue endpoints. 商品目錄相關 API。",
@@ -45,6 +50,7 @@ const app = new Elysia({ prefix: "/api" })
         "Simple health-check style endpoint for the Audiophile API. 可用來確認 API 是否正常運作。",
     },
   })
+  .use(health)
   .use(cart)
   .use(products)
   .use(checkout)

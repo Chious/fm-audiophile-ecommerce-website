@@ -8,6 +8,13 @@ This is a solution to the [Audiophile e-commerce website challenge on Frontend M
   - [The challenge](#the-challenge)
   - [Screenshot](#screenshot)
   - [Links](#links)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Database Setup](#database-setup)
+  - [Running the Application](#running-the-application)
+  - [Available Scripts](#available-scripts)
+  - [Troubleshooting](#troubleshooting)
 - [My process](#my-process)
   - [Built with](#built-with)
   - [What I learned](#what-i-learned)
@@ -15,8 +22,6 @@ This is a solution to the [Audiophile e-commerce website challenge on Frontend M
   - [Useful resources](#useful-resources)
 - [Author](#author)
 - [Acknowledgments](#acknowledgments)
-
-**Note: Delete this note and update the table of contents based on what sections you keep.**
 
 ## Overview
 
@@ -44,6 +49,143 @@ Users should be able to:
 
 - Solution URL: [Add solution URL here](https://your-solution-url.com)
 - Live Site URL: [Add live site URL here](https://your-live-site-url.com)
+
+## Getting Started
+
+### Prerequisites
+
+- [Bun](https://bun.sh/) (v1.0.0 or higher)
+- [Docker](https://www.docker.com/) and Docker Compose (for local database)
+- Node.js 20+ (if not using Bun)
+
+### Installation
+
+1. **Clone the repository**
+
+```bash
+git clone <repository-url>
+cd fm-audiophile-ecommerce-website
+```
+
+2. **Install dependencies**
+
+```bash
+bun install
+```
+
+3. **Set up environment variables**
+
+Copy the example environment file and fill in the values:
+
+```bash
+cp .env.example .env.local
+```
+
+**Note**: This project supports both `.env` and `.env.local` files. `.env.local` is recommended for local development as it's typically ignored by git.
+
+Edit `.env.local` and configure the following:
+
+```env
+# Database (Development)
+DATABASE_URL=postgresql://audiophile:audiophile123@localhost:5432/audiophile_db
+
+# PostgreSQL (for docker-compose)
+POSTGRES_USER=audiophile
+POSTGRES_PASSWORD=audiophile123
+POSTGRES_DB=audiophile_db
+POSTGRES_PORT=5432
+
+# Vercel Blob Storage (optional)
+BLOB_READ_WRITE_TOKEN=your_blob_token_here
+
+# Better Auth (optional)
+BETTER_AUTH_SECRET=your_secret_here
+BETTER_AUTH_URL=http://localhost:3000
+```
+
+### Database Setup
+
+1. **Start PostgreSQL with Docker**
+
+```bash
+docker-compose up -d
+```
+
+This will start a PostgreSQL 16 container on port 5432.
+
+2. **Generate database migrations**
+
+```bash
+bun run db:generate
+```
+
+3. **Apply migrations to database**
+
+```bash
+bun run db:push
+```
+
+Or use migrations:
+
+```bash
+bun run db:migrate
+```
+
+4. **Seed the database with initial data**
+
+```bash
+bun run db:seed
+```
+
+This will populate the database with products from `data/data.json`.
+
+### Running the Application
+
+1. **Start the development server**
+
+```bash
+bun run dev
+```
+
+The application will be available at [http://localhost:3000](http://localhost:3000)
+
+2. **Access API documentation**
+
+OpenAPI documentation is available at [http://localhost:3000/api/docs](http://localhost:3000/api/docs)
+
+3. **Open Drizzle Studio (optional)**
+
+To visually manage the database:
+
+```bash
+bun run db:studio
+```
+
+### Available Scripts
+
+- `bun run dev` - Start development server
+- `bun run build` - Build for production
+- `bun run start` - Start production server
+- `bun run lint` - Run ESLint
+- `bun run db:generate` - Generate database migrations
+- `bun run db:push` - Push schema changes to database (development)
+- `bun run db:migrate` - Run database migrations (production)
+- `bun run db:studio` - Open Drizzle Studio
+- `bun run db:seed` - Seed database with initial data
+
+### Troubleshooting
+
+**Database connection issues:**
+
+- Ensure Docker is running and the PostgreSQL container is up: `docker ps`
+- Check if the port 5432 is available: `lsof -i :5432`
+- Verify DATABASE_URL in `.env.local` (or `.env`) matches docker-compose settings
+- Make sure `.env.local` exists and contains `DATABASE_URL`
+
+**Migration issues:**
+
+- If migrations fail, try resetting the database: `docker-compose down -v` then `docker-compose up -d`
+- Regenerate migrations: `bun run db:generate`
 
 ## My process
 
