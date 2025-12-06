@@ -9,6 +9,7 @@ const BLOB_BASE_URL =
 const blobUrl = new URL(BLOB_BASE_URL);
 
 const nextConfig: NextConfig = {
+  output: "standalone",
   images: {
     remotePatterns: [
       {

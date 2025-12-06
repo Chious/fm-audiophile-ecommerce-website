@@ -8,6 +8,46 @@ import {
 } from "./schema";
 import productsData from "../data/data.json";
 
+// Type definitions for product data
+type ImageSizes = {
+  mobile: string;
+  tablet: string;
+  desktop: string;
+};
+
+type ProductInclude = {
+  quantity: number;
+  item: string;
+};
+
+type RelatedProduct = {
+  slug: string;
+  name: string;
+  image: ImageSizes;
+};
+
+type ProductData = {
+  id?: number;
+  slug: string;
+  name: string;
+  category: string;
+  image?: ImageSizes;
+  categoryImage?: ImageSizes;
+  new?: boolean;
+  price: number;
+  description: string;
+  features: string;
+  includes?: ProductInclude[];
+  gallery?: {
+    first?: ImageSizes;
+    second?: ImageSizes;
+    third?: ImageSizes;
+  };
+  others?: RelatedProduct[];
+};
+
+type ProductsData = ProductData[];
+
 async function seed() {
   console.log("🌱 Starting database seed...");
 
@@ -25,7 +65,7 @@ async function seed() {
     const categoryMap = new Map<string, string>();
 
     const uniqueCategories = Array.from(
-      new Set((productsData as any[]).map((p: any) => String(p.category)))
+      new Set((productsData as ProductsData).map((p) => String(p.category)))
     );
 
     for (const catSlug of uniqueCategories) {
@@ -47,7 +87,7 @@ async function seed() {
     console.log("🛍️ Seeding products...");
     const productMap = new Map<string, string>();
 
-    for (const productData of productsData as any[]) {
+    for (const productData of productsData as ProductsData) {
       const categoryId = categoryMap.get(productData.category);
       if (!categoryId) {
         console.warn(`Category not found for product: ${productData.slug}`);
@@ -75,7 +115,7 @@ async function seed() {
 
     // Seed product images
     console.log("🖼️ Seeding product images...");
-    for (const productData of productsData as any) {
+    for (const productData of productsData as ProductsData) {
       const productId = productMap.get(productData.slug);
       if (!productId) continue;
 
@@ -135,7 +175,10 @@ async function seed() {
 
       // Gallery images
       if (productData.gallery) {
-        const galleryEntries = [
+        const galleryEntries: Array<{
+          key: "first" | "second" | "third";
+          order: number;
+        }> = [
           { key: "first", order: 0 },
           { key: "second", order: 1 },
           { key: "third", order: 2 },
@@ -206,7 +249,7 @@ async function seed() {
 
     // Seed product includes
     console.log("📋 Seeding product includes...");
-    for (const productData of productsData as any) {
+    for (const productData of productsData as ProductsData) {
       const productId = productMap.get(productData.slug);
       if (!productId || !Array.isArray(productData.includes)) continue;
 
@@ -223,7 +266,7 @@ async function seed() {
 
     // Seed related products
     console.log("🔗 Seeding related products...");
-    for (const productData of productsData as any) {
+    for (const productData of productsData as ProductsData) {
       const productId = productMap.get(productData.slug);
       if (!productId || !Array.isArray(productData.others)) continue;
 
