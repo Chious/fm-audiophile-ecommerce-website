@@ -1,0 +1,1253 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Setup Project Repository and Local Environment",
+        "description": "Initialize the Next.js 16 project with App Router, configure Bun/Node.js, Docker Compose for PostgreSQL, and set up environment variables.",
+        "details": "Create Next.js 16 app with `create-next-app` using TypeScript, Tailwind CSS, and App Router. Install Bun 1.0+ or Node.js 20+. Set up `docker-compose.yml` for PostgreSQL 16 with `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`. Create `.env.local` with `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, and `BLOB_READ_WRITE_TOKEN` (if using Vercel Blob). Initialize Drizzle ORM with `drizzle-kit` and configure schema location.",
+        "testStrategy": "Verify `npm run dev` starts the dev server, Docker container runs PostgreSQL, and environment variables are loaded correctly.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create Next.js 16 Project with App Router",
+            "description": "Initialize a new Next.js 16 application using create-next-app CLI with TypeScript, Tailwind CSS, and App Router enabled.",
+            "dependencies": [],
+            "details": "Run `npx create-next-app@latest my-app` and select TypeScript, Tailwind CSS, and App Router options. Verify the project structure includes app/ directory with default layout and page files. Ensure Node.js 20+ or Bun 1.0+ is installed and `npm run dev` successfully starts the development server on http://localhost:3000.",
+            "status": "done",
+            "testStrategy": "Execute `npm run dev`, verify the dev server starts without errors, and confirm the default Next.js page loads in the browser."
+          },
+          {
+            "id": 2,
+            "title": "Set Up Docker Compose for PostgreSQL 16",
+            "description": "Create and configure a docker-compose.yml file to run PostgreSQL 16 with proper environment variables and volume persistence.",
+            "dependencies": [],
+            "details": "Create `docker-compose.yml` in the project root with PostgreSQL 16 service. Define environment variables: `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`. Configure volume mounting for data persistence. Ensure the service exposes port 5432 and includes health checks. Document the connection string format for DATABASE_URL.",
+            "status": "done",
+            "testStrategy": "Run `docker-compose up`, verify PostgreSQL container starts successfully, connect using psql or a database client with the configured credentials, and confirm the database is accessible."
+          },
+          {
+            "id": 3,
+            "title": "Configure Environment Variables and Drizzle ORM",
+            "description": "Create .env.local file with all required environment variables and initialize Drizzle ORM with schema configuration.",
+            "dependencies": [],
+            "details": "Create `.env.local` with `DATABASE_URL` (PostgreSQL connection string), `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, and `BLOB_READ_WRITE_TOKEN` (if using Vercel Blob). Install Drizzle ORM packages: `npm install drizzle-orm pg` and `npm install -D drizzle-kit`. Create `drizzle.config.ts` with schema location pointing to `src/db/schema.ts` and database connection configuration.",
+            "status": "done",
+            "testStrategy": "Verify environment variables are loaded by creating a test API route that logs them. Confirm drizzle-kit can connect to the database by running `npx drizzle-kit introspect`."
+          },
+          {
+            "id": 4,
+            "title": "Define Database Schema with Drizzle ORM",
+            "description": "Create comprehensive Drizzle ORM schema files for all database tables including users, products, orders, and related entities.",
+            "dependencies": [],
+            "details": "Create `src/db/schema.ts` with table definitions for: users, sessions, accounts, verifications, categories, products, product_images, product_includes, related_products, orders, order_items, and stock_reservations. Define relationships using foreign keys, set appropriate constraints, and add indexes on frequently queried fields (products.slug, products.category, orders.userId, stock_reservations.expiresAt). Ensure all fields match the provided data models.",
+            "status": "done",
+            "testStrategy": "Run `npx drizzle-kit generate` to generate migration files, verify migration SQL is correct, then run `npx drizzle-kit migrate` to apply migrations. Connect to PostgreSQL and verify all tables and indexes exist using database introspection tools."
+          },
+          {
+            "id": 5,
+            "title": "Verify Local Development Environment Setup",
+            "description": "Perform comprehensive testing to ensure all components work together correctly in the local development environment.",
+            "dependencies": [],
+            "details": "Verify that `npm run dev` starts the Next.js dev server successfully, Docker Compose PostgreSQL container is running and accessible, environment variables are properly loaded in the application, Drizzle ORM can connect to the database, and all database tables are created with correct schemas. Create a simple test API route that queries the database to confirm end-to-end connectivity.",
+            "status": "done",
+            "testStrategy": "Run the full development stack: start Docker Compose, run `npm run dev`, create a test API endpoint that performs a database query, and verify the response is successful. Check logs for any connection errors or missing environment variables."
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Implement Database Schema and Migrations",
+        "description": "Define and generate database schema using Drizzle ORM based on the provided data models.",
+        "details": "Create Drizzle schema files for `users`, `sessions`, `accounts`, `verifications`, `categories`, `products`, `product_images`, `product_includes`, `related_products`, `orders`, `order_items`, and `stock_reservations`. Define relationships and constraints. Use `drizzle-kit` to generate and apply migrations. Ensure indexes on frequently queried fields (e.g., `products.slug`, `products.category`, `orders.userId`, `stock_reservations.expiresAt`).",
+        "testStrategy": "Run migrations locally, connect to PostgreSQL, and verify all tables and indexes exist as expected.",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Set up Drizzle ORM and migration configuration",
+            "description": "Install and configure Drizzle ORM and drizzle-kit for the PostgreSQL project, ensuring schema discovery and migration output paths are correctly defined.",
+            "dependencies": [],
+            "details": "Install drizzle-orm, drizzle-kit, and the PostgreSQL driver; create drizzle.config.ts pointing to the schema directory (e.g., ./src/db/schema) and migrations folder; configure database credentials via environment variables; verify that drizzle-kit commands (generate, push/migrate) run successfully against the target database.",
+            "status": "done",
+            "testStrategy": "Run a dry drizzle-kit generate or push command to confirm the config is read correctly and that the tool can connect to the database without errors."
+          },
+          {
+            "id": 2,
+            "title": "Define auth-related tables and constraints",
+            "description": "Create Drizzle schema definitions for users, sessions, accounts, and verifications with appropriate primary keys, unique constraints, and relations.",
+            "dependencies": [],
+            "details": "Create schema files (e.g., users.ts, sessions.ts, accounts.ts, verifications.ts) using the PostgreSQL dialect; define columns (IDs, timestamps, user identifiers, provider fields, tokens, expirations); add primary and foreign keys (sessions.userId → users.id, accounts.userId → users.id, verifications.userId or email as needed); export tables from an index file so drizzle-kit can detect them.",
+            "status": "done",
+            "testStrategy": "Run drizzle-kit generate and inspect the SQL diff to ensure all four tables, PKs, FKs, and uniqueness constraints (e.g., unique user email, unique provider+providerAccountId) are created as expected."
+          },
+          {
+            "id": 3,
+            "title": "Define catalog tables, relationships, and indexing",
+            "description": "Implement Drizzle schemas for categories, products, product_images, product_includes, and related_products with necessary relationships and indexes.",
+            "dependencies": [],
+            "details": "Create schema files for category and product domain tables; define categories with slug/name fields, products with slug, categoryId, pricing, and publish/status fields; relate products.categoryId → categories.id; define product_images linked to products with metadata (URL/blob key, type, size, order); define product_includes for line-item style descriptive rows per product; define related_products as a join table (productId, relatedProductId) with proper FKs and composite uniqueness; add indexes on products.slug and products.categoryId (or category slug) and any frequently filtered fields.",
+            "status": "done",
+            "testStrategy": "Generate migrations with drizzle-kit and verify SQL includes all catalog tables, FKs between products and categories and related tables, and indexes on products.slug and category-related columns."
+          },
+          {
+            "id": 4,
+            "title": "Define order and stock reservation schemas with performance indexes",
+            "description": "Create Drizzle schemas for orders, order_items, and stock_reservations, including foreign keys, status fields, and time-based indexes.",
+            "dependencies": [],
+            "details": "Define orders table with userId, orderNumber, status, totals, currency, billing/shipping info, and timestamps; relate orders.userId → users.id (nullable for guests if required); define order_items referencing orders.id and products.id with quantity, unitPrice, and subtotal; define stock_reservations with productId (or variant reference), quantity, orderId or sessionId, expiresAt, and status; add indexes on orders.userId and stock_reservations.expiresAt plus any other heavy-query columns (e.g., orders.status, createdAt).",
+            "status": "done",
+            "testStrategy": "Run drizzle-kit generate and inspect the migration to ensure all three tables, FKs, and required indexes (orders.userId, stock_reservations.expiresAt) are present; apply to a test DB and verify query plans for typical lookups use the indexes."
+          },
+          {
+            "id": 5,
+            "title": "Generate, apply, and validate initial migrations",
+            "description": "Use drizzle-kit to generate and apply migrations from the defined schemas and verify that all tables, relations, and indexes exist and match the data model requirements.",
+            "dependencies": [
+              "2.1",
+              "2.2",
+              "2.3",
+              "2.4"
+            ],
+            "details": "Run drizzle-kit generate (or push) to create SQL migrations from the schema; apply migrations to the local PostgreSQL instance; cross-check the resulting database structure using psql or a GUI (e.g., check information_schema or pg_indexes) to confirm table counts, column definitions, PK/FK relationships, and all specified indexes; adjust schema and regenerate if any mismatch is found.",
+            "status": "done",
+            "testStrategy": "Execute migrations against a clean database, then list all tables and indexes and compare them to the expected set (users, sessions, accounts, verifications, categories, products, product_images, product_includes, related_products, orders, order_items, stock_reservations); run a small suite of smoke queries (basic inserts/selects with joins) to ensure constraints and relations behave as intended."
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Create Database Seed Script",
+        "description": "Implement a script to populate the database with initial product data, categories, and an admin user.",
+        "details": "Write a Node.js/Bun script that uses Drizzle ORM to insert seed data: categories (headphones, speakers, earphones), sample products with images, features, included items, and related products. Insert an initial admin user with role='admin' and a consumer user for testing. Ensure slugs are unique and data matches the frontend expectations.",
+        "testStrategy": "Run the seed script and verify data is inserted correctly via database client or admin panel.",
+        "priority": "high",
+        "dependencies": [
+          2
+        ],
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Define seed data structures for categories, products, and users",
+            "description": "Design and formalize the static seed data for categories, products, and initial users to match the existing database schema and frontend expectations.",
+            "dependencies": [],
+            "details": "Collect and specify seed data for the three core categories (headphones, speakers, earphones), including any required fields such as name, slug, description, and image associations. Define sample products for each category with all required attributes: slugs, names, descriptions, pricing, images, features, included items (box contents), and related products. Specify an initial admin user (role='admin') and at least one consumer/test user with all required authentication and profile fields. Ensure the shape of this data aligns with the Drizzle ORM schemas and the frontend’s expected product/category/user structure.",
+            "status": "done",
+            "testStrategy": "Review the defined data structures against the Drizzle schema types and frontend type definitions or API contracts to confirm all required fields are present and correctly typed."
+          },
+          {
+            "id": 2,
+            "title": "Implement Node.js/Bun seed script setup with Drizzle ORM",
+            "description": "Create the executable Node.js/Bun script that initializes the database connection and imports Drizzle ORM schemas for seeding.",
+            "dependencies": [
+              "3.1"
+            ],
+            "details": "Create a dedicated seed entry file (for example, `scripts/seed.ts` or `drizzle/seed.ts`) that loads environment variables, initializes the database connection using Drizzle ORM, and imports the category, product, and user tables from the schema. Ensure the script can be run via Node.js or Bun (e.g., using tsx or Bun directly) and add an npm/bun script alias (such as `db:seed`) for easy invocation. Structure the script with an async main/seed function and proper error handling and process exit codes.",
+            "status": "done",
+            "testStrategy": "Run the script in a development environment with an empty database to verify the script connects successfully and exits without runtime errors (no inserts yet)."
+          },
+          {
+            "id": 3,
+            "title": "Seed categories, products, and relationships using Drizzle ORM",
+            "description": "Use Drizzle ORM insert operations to populate categories, products, and their relationships, including features, included items, and related products.",
+            "dependencies": [
+              "3.1",
+              "3.2"
+            ],
+            "details": "Within the seed script, insert category records first using `db.insert(categories).values(...)`. Capture inserted IDs or rely on deterministic IDs/slugs as needed for foreign keys. Insert products next, associating them with categories via foreign keys and populating all required product fields. Insert related entities such as product images, feature lists, included items, and related product relations, ensuring referential integrity (e.g., using returned product IDs or slugs). Use transactions where appropriate to guarantee seeding consistency and rollback on failure.",
+            "status": "done",
+            "testStrategy": "Run the seed script and inspect the database (via client/admin tool) to verify that categories and products are created, that relationships (category → products, product → images/features/included items/related products) are correctly linked, and that no foreign key constraints fail."
+          },
+          {
+            "id": 4,
+            "title": "Seed initial admin and consumer users",
+            "description": "Insert an initial admin user and a consumer test user that conform to the authentication and authorization model.",
+            "dependencies": [
+              "3.2"
+            ],
+            "details": "Use Drizzle ORM to insert at least two users into the users table: one with `role='admin'` and one standard consumer user. Ensure passwords are stored according to the existing auth implementation (e.g., hashed with the same algorithm and salt configuration). Populate any required auth fields such as email, username, createdAt timestamps, and status flags. If roles are managed in a separate table, also insert role records and link them to users as needed.",
+            "status": "done",
+            "testStrategy": "Run the seed script and then attempt to authenticate using the admin and consumer credentials through the existing login flow to confirm that authentication works and roles are recognized correctly for route protection."
+          },
+          {
+            "id": 5,
+            "title": "Enforce slug uniqueness and validate seeded data against frontend expectations",
+            "description": "Add logic and checks to guarantee unique slugs and verify that seeded entities match what the frontend expects for rendering and API responses.",
+            "dependencies": [
+              "3.3",
+              "3.4"
+            ],
+            "details": "Implement safeguards to ensure each category and product slug is unique, either by checking before insertion or enforcing database constraints and handling conflicts. After seeding, query a representative set of categories and products (including related data) using Drizzle and compare the returned structure/fields to the frontend’s expected data shape (e.g., product detail pages, listing pages, and related product sections). Adjust seed data or mappings so that all required fields, naming conventions, and nested relationships align with the frontend contracts.",
+            "status": "done",
+            "testStrategy": "Run the seed script and then hit existing frontend pages or API endpoints (e.g., product listing/detail) to confirm that pages render correctly, slugs resolve as expected, and no runtime errors occur due to missing fields or mismatched data shapes. Additionally, attempt to insert a duplicate slug to verify that uniqueness is enforced."
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "Set Up Elysia.js API with OpenAPI",
+        "description": "Configure Elysia.js backend with OpenAPI documentation and basic routes.",
+        "details": "Set up Elysia.js server in a `src/api` directory. Define OpenAPI spec with info, servers, and components. Create basic routes: `GET /api/health` returning status and database connectivity, `GET /api/products` stub, `POST /api/checkout` stub. Integrate with Next.js API routes or run as standalone server depending on deployment strategy.",
+        "testStrategy": "Start Elysia server and verify OpenAPI docs are accessible and health endpoint returns 200 with database status.",
+        "priority": "high",
+        "dependencies": [
+          2
+        ],
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Initialize Elysia.js Server in src/api",
+            "description": "Set up the Elysia.js server instance inside the `src/api` directory with a basic configuration.",
+            "dependencies": [],
+            "details": "Create a new Elysia instance in `src/api/server.ts` (or similar). Configure it to listen on a port (e.g., 3000) and export the app instance. Ensure the file is structured so it can be used as a standalone server or integrated with Next.js API routes later.",
+            "status": "done",
+            "testStrategy": "Run the server and verify it starts without errors and responds to a basic request (e.g., GET /)."
+          },
+          {
+            "id": 2,
+            "title": "Install and Configure OpenAPI Plugin",
+            "description": "Add the Elysia OpenAPI plugin to generate API documentation and configure the OpenAPI info, servers, and components.",
+            "dependencies": [
+              "4.1"
+            ],
+            "details": "Install `@elysiajs/openapi` and register it with the Elysia app. Configure the OpenAPI spec with `info` (title, version), `servers`, and empty `components` initially. Ensure the docs are accessible at `/openapi` (or `/swagger` if using Swagger UI).",
+            "status": "done",
+            "testStrategy": "Start the server and access the OpenAPI documentation endpoint to confirm the spec is generated and displays the configured info and servers."
+          },
+          {
+            "id": 3,
+            "title": "Define OpenAPI Components and Tags",
+            "description": "Define reusable OpenAPI components (schemas, responses) and tags for route grouping in the OpenAPI spec.",
+            "dependencies": [
+              "4.2"
+            ],
+            "details": "Extend the OpenAPI configuration to include `components` with schemas for common responses (e.g., HealthResponse, ErrorResponse) and HTTP responses. Define tags such as 'Health', 'Products', and 'Checkout' to group related routes in the documentation.",
+            "status": "done",
+            "testStrategy": "Verify that the OpenAPI spec includes the defined components and tags when viewed in the documentation UI."
+          },
+          {
+            "id": 4,
+            "title": "Create Basic API Routes",
+            "description": "Implement the required basic routes: health check, products list, and checkout.",
+            "dependencies": [
+              "4.1",
+              "4.2",
+              "4.3"
+            ],
+            "details": "Add the following routes to the Elysia app: `GET /api/health` returning a status object and database connectivity status, `GET /api/products` returning a stub array, and `POST /api/checkout` returning a stub confirmation. Use the `detail` field to add OpenAPI metadata (summary, tags, responses) for each route.",
+            "status": "done",
+            "testStrategy": "Test each route via HTTP client or browser to ensure they return the expected stub responses and are correctly documented in OpenAPI."
+          },
+          {
+            "id": 5,
+            "title": "Prepare for Integration with Next.js or Standalone Deployment",
+            "description": "Adjust the Elysia server setup to support either integration with Next.js API routes or standalone server deployment.",
+            "dependencies": [
+              "4.1",
+              "4.2",
+              "4.3",
+              "4.4"
+            ],
+            "details": "If integrating with Next.js, export the Elysia app in a way that can be mounted in a Next.js API route. If running standalone, ensure the server listens on the correct port and environment variables are used for configuration. Update deployment strategy notes accordingly.",
+            "status": "done",
+            "testStrategy": "Verify the server works in the chosen deployment mode (Next.js integration or standalone) and that OpenAPI docs remain accessible."
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Migrate Product Service to Database",
+        "description": "Replace static JSON product data with database queries using Drizzle ORM.",
+        "details": "Create a `ProductService` class that uses Drizzle ORM to query `products`, `categories`, `product_images`, `product_includes`, and `related_products`. Implement methods: `getAllProducts(pagination)`, `getProductBySlug(slug)`, `getProductsByCategory(category)`. Ensure response format matches existing frontend expectations (slug, name, category, price, stock, images, etc.).",
+        "testStrategy": "Call service methods directly and via API routes, compare output to expected schema and verify all fields are present.",
+        "priority": "high",
+        "dependencies": [
+          2,
+          3
+        ],
+        "status": "in-progress",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Define Drizzle ORM schema for product-related tables",
+            "description": "Create Drizzle ORM schema files defining the `products`, `categories`, `product_images`, `product_includes`, and `related_products` tables with appropriate columns, constraints, and relationships.",
+            "dependencies": [],
+            "details": "Define each table using Drizzle’s SQLite/PostgreSQL core functions. Ensure `products` has fields like `id`, `slug`, `name`, `categoryId`, `price`, `stock`, `description`, etc. Link `product_images`, `product_includes`, and `related_products` to `products` via foreign keys. Define a `categories` table with `id` and `name`.",
+            "status": "in-progress",
+            "testStrategy": "Inspect generated schema files and verify all required fields and relationships are correctly defined. Use Drizzle Kit to generate and review migration files."
+          },
+          {
+            "id": 2,
+            "title": "Set up Drizzle ORM and database connection",
+            "description": "Configure Drizzle ORM with the project’s database (e.g., Turso, SQLite, or PostgreSQL) and establish a connection instance to be used by the `ProductService`.",
+            "dependencies": [
+              "5.1"
+            ],
+            "details": "Install required Drizzle and database driver packages. Create a `drizzle.config.ts` file pointing to the schema and migrations directory. Create a `db.ts` file that exports a `db` instance using `drizzle()` and the appropriate client (e.g., `libsql` for Turso). Ensure environment variables for the database URL and auth token are used.",
+            "status": "pending",
+            "testStrategy": "Verify that the `db` instance can be imported and used in a simple script to query a test table. Confirm migrations can be generated and applied successfully."
+          },
+          {
+            "id": 3,
+            "title": "Generate and apply database migrations",
+            "description": "Use Drizzle Kit to generate migration files from the schema and apply them to the database to create the product-related tables.",
+            "dependencies": [
+              "5.2"
+            ],
+            "details": "Run `npx drizzle-kit generate` to create migration files in the configured migrations directory. Then run `npx drizzle-kit migrate` to apply the migrations to the database. Verify that all tables (`products`, `categories`, `product_images`, `product_includes`, `related_products`) are created with correct columns and constraints.",
+            "status": "pending",
+            "testStrategy": "Connect to the database and inspect the created tables. Confirm that all expected columns, primary keys, foreign keys, and indexes are present and correctly defined."
+          },
+          {
+            "id": 4,
+            "title": "Create ProductService class with Drizzle ORM queries",
+            "description": "Implement the `ProductService` class that uses the Drizzle ORM `db` instance to query product data from the database.",
+            "dependencies": [
+              "5.3"
+            ],
+            "details": "Create a `ProductService` class with methods: `getAllProducts(pagination)` (with limit/offset), `getProductBySlug(slug)`, and `getProductsByCategory(category)`. Use Drizzle ORM’s query builder to join `products` with `categories`, `product_images`, `product_includes`, and `related_products` as needed. Ensure the returned data structure matches the existing frontend expectations (slug, name, category, price, stock, images, etc.).",
+            "status": "pending",
+            "testStrategy": "Call each method directly with test inputs and verify the returned data structure matches the expected format. Check that pagination, filtering by category, and slug lookup work correctly."
+          },
+          {
+            "id": 5,
+            "title": "Populate database with initial product data and validate service output",
+            "description": "Seed the database with initial product data and ensure `ProductService` methods return data in the exact format expected by the frontend.",
+            "dependencies": [
+              "5.4"
+            ],
+            "details": "Insert sample data into `products`, `categories`, `product_images`, `product_includes`, and `related_products` tables. Call `ProductService` methods and compare the output against the existing frontend schema (e.g., slug, name, category, price, stock, images array, related products, etc.). Adjust queries or data mapping in `ProductService` as needed to match the frontend contract.",
+            "status": "pending",
+            "testStrategy": "Compare the output of `getAllProducts`, `getProductBySlug`, and `getProductsByCategory` with the expected frontend response format. Verify all required fields are present and correctly populated."
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "Implement Public Products API Endpoints",
+        "description": "Expose product data via RESTful endpoints for the frontend.",
+        "details": "Create Elysia routes: `GET /api/products` (with pagination, optional category filter), `GET /api/products/:slug`, `GET /api/products/category/:category`. Use `ProductService` internally. Add input validation for params/query. Ensure CORS and rate limiting are configured. Return data in the format specified in PRD.",
+        "testStrategy": "Test endpoints with curl/Postman, verify pagination, filtering, and correct product data including images and related products.",
+        "priority": "high",
+        "dependencies": [
+          4,
+          5
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Set up Elysia server with CORS and rate limiting",
+            "description": "Initialize the Elysia server instance and configure global CORS and rate limiting middleware to secure and control access to the Products API.",
+            "dependencies": [],
+            "details": "Use Elysia’s built-in hooks or plugins to enable CORS for the frontend origin and apply rate limiting (e.g., 100 requests per minute per IP) to prevent abuse. Ensure this configuration is applied before defining any routes.",
+            "status": "pending",
+            "testStrategy": "Verify that API responses include correct CORS headers and that exceeding the rate limit returns a 429 status code."
+          },
+          {
+            "id": 2,
+            "title": "Define and validate input schemas for Products API",
+            "description": "Create Zod schemas for query parameters (pagination, category filter) and route parameters (slug, category) used in the Products API endpoints.",
+            "dependencies": [],
+            "details": "Define schemas for `GET /api/products` (page, limit, category), `GET /api/products/:slug`, and `GET /api/products/category/:category`. Use these schemas in Elysia route validation to ensure only valid input reaches the service layer.",
+            "status": "pending",
+            "testStrategy": "Test endpoints with invalid query/params to confirm 400 responses and with valid input to confirm validation passes."
+          },
+          {
+            "id": 3,
+            "title": "Implement ProductService integration in Elysia routes",
+            "description": "Create Elysia routes for `GET /api/products`, `GET /api/products/:slug`, and `GET /api/products/category/:category`, using ProductService methods internally to fetch product data.",
+            "dependencies": [
+              "6.1",
+              "6.2"
+            ],
+            "details": "Map each route to the appropriate ProductService method (e.g., listProducts, getProductBySlug, getProductsByCategory). Ensure the returned data matches the format specified in the PRD (e.g., images, related products).",
+            "status": "pending",
+            "testStrategy": "Use curl/Postman to call each endpoint and verify correct product data, including images and related products, is returned in the expected format."
+          },
+          {
+            "id": 4,
+            "title": "Add pagination and optional category filtering to /api/products",
+            "description": "Enhance the `GET /api/products` route to support pagination (page, limit) and optional filtering by category using the validated input schemas.",
+            "dependencies": [
+              "6.2",
+              "6.3"
+            ],
+            "details": "Pass validated query parameters (page, limit, category) from the route handler to ProductService. Return paginated results with metadata (total, page, limit) as specified in the PRD.",
+            "status": "pending",
+            "testStrategy": "Test pagination (different page/limit values) and category filtering to confirm correct subset of products is returned with accurate pagination metadata."
+          },
+          {
+            "id": 5,
+            "title": "Finalize and test Public Products API endpoints",
+            "description": "Review all Products API routes for consistency, error handling, and compliance with PRD, then perform comprehensive testing.",
+            "dependencies": [
+              "6.1",
+              "6.2",
+              "6.3",
+              "6.4"
+            ],
+            "details": "Ensure all routes return standardized responses, handle edge cases (e.g., non-existent slug/category), and respect CORS/rate limits. Confirm response format matches PRD exactly.",
+            "status": "pending",
+            "testStrategy": "Test all endpoints with curl/Postman, verify pagination, filtering, correct product data including images and related products, and proper error responses for invalid/missing resources."
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "title": "Implement Stock Reservation Service",
+        "description": "Create a service to reserve product stock when items are added to cart, with 30-minute expiry.",
+        "details": "Create `StockReservationService` with methods: `createReservation(productId, quantity, userId/sessionId)`, `getAvailableStock(productId)`, `validateStock(productId, quantity)`, `cleanupExpiredReservations()`. Use database transactions to ensure atomicity. `stock_reservations` table should have `productId`, `quantity`, `userId` or `sessionId`, `expiresAt` (30 minutes from now).",
+        "testStrategy": "Write unit tests for reservation creation, available stock calculation, and cleanup. Test race conditions with concurrent adds.",
+        "priority": "high",
+        "dependencies": [
+          2
+        ],
+        "status": "in-progress",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Design and create the stock_reservations database table",
+            "description": "Define the schema for the stock_reservations table with required fields: productId, quantity, userId or sessionId, and expiresAt (set to 30 minutes from creation). Ensure proper indexing and foreign key constraints where applicable.",
+            "dependencies": [],
+            "details": "Create a migration to add the stock_reservations table. Columns: id (PK), productId (FK to products), quantity (integer), userId (nullable, FK to users), sessionId (nullable, string), expiresAt (timestamp). expiresAt should default to CURRENT_TIMESTAMP + 30 minutes.",
+            "status": "in-progress",
+            "testStrategy": "Verify the table is created with correct columns, constraints, and indexes. Test inserting and querying reservation records manually."
+          },
+          {
+            "id": 2,
+            "title": "Implement the StockReservationService class and core methods",
+            "description": "Create the StockReservationService class with the required methods: createReservation, getAvailableStock, validateStock, and cleanupExpiredReservations.",
+            "dependencies": [
+              "7.1"
+            ],
+            "details": "Implement the service using dependency injection for the database. Methods must use database transactions to ensure atomicity. createReservation reserves stock and sets expiresAt. getAvailableStock returns available quantity (total stock minus active reservations). validateStock checks if requested quantity is available. cleanupExpiredReservations removes or marks expired reservations.",
+            "status": "pending",
+            "testStrategy": "Write unit tests for each method in isolation, mocking the database. Test valid and invalid inputs, edge cases like zero quantity, and ensure transactions are used."
+          },
+          {
+            "id": 3,
+            "title": "Implement createReservation and validateStock with transaction safety",
+            "description": "Implement the createReservation method to reserve stock atomically and validateStock to check if sufficient stock is available for a given product and quantity.",
+            "dependencies": [
+              "7.2"
+            ],
+            "details": "In createReservation, start a transaction, check available stock via validateStock, insert a reservation record with expiresAt = now + 30 minutes, and commit. validateStock should calculate total stock minus active reservations (where expiresAt > now) for the productId.",
+            "status": "pending",
+            "testStrategy": "Test createReservation with valid and invalid quantities, including cases where stock is insufficient. Test race conditions using concurrent calls and verify transactions prevent over-reservation."
+          },
+          {
+            "id": 4,
+            "title": "Implement getAvailableStock and cleanupExpiredReservations",
+            "description": "Implement getAvailableStock to return the current available stock for a product and cleanupExpiredReservations to remove or release expired reservations.",
+            "dependencies": [
+              "7.2"
+            ],
+            "details": "getAvailableStock should query total stock for the productId and subtract the sum of quantity from stock_reservations where expiresAt > now. cleanupExpiredReservations should delete or mark as inactive reservations where expiresAt <= now, using a transaction.",
+            "status": "pending",
+            "testStrategy": "Test getAvailableStock with various reservation states (active, expired). Test cleanupExpiredReservations by creating expired reservations and verifying they are removed or released."
+          },
+          {
+            "id": 5,
+            "title": "Write comprehensive unit tests and integrate with cart/checkout flow",
+            "description": "Write unit tests for the entire StockReservationService and ensure it integrates correctly with the cart and checkout APIs.",
+            "dependencies": [
+              "7.3",
+              "7.4"
+            ],
+            "details": "Write unit tests covering reservation creation, available stock calculation, validation, and cleanup. Test edge cases and concurrency. Integrate the service with the cart logic so that adding items to cart calls createReservation and checkout uses the reserved stock.",
+            "status": "pending",
+            "testStrategy": "Test reservation creation, available stock updates, and cleanup. Test concurrent adds to cart to ensure no overbooking. Verify that checkout consumes reserved stock and handles expired reservations appropriately."
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "title": "Implement Checkout API with Order Creation",
+        "description": "Replace fake checkout with database-backed order creation and stock deduction.",
+        "details": "Create `CheckoutService` that: validates cart items, calculates totals (subtotal, $50 shipping, 20% VAT on subtotal, grand total), creates `orders` record with customer info, creates `order_items` with price snapshots, and deducts stock from `products` (after validating available stock). Generate unique order number. Return order confirmation with `orderId`, `orderNumber`, and message.",
+        "testStrategy": "Test checkout flow with valid/invalid carts, verify order and order items are created, stock is updated, and totals are correct.",
+        "priority": "high",
+        "dependencies": [
+          5,
+          7
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Design CheckoutService interface and data models",
+            "description": "Define the CheckoutService contract, required input/output DTOs, and ensure alignment with existing cart, product, and order schemas.",
+            "dependencies": [],
+            "details": "Specify method signatures for performing checkout (e.g., `checkout(cartItems, customerInfo, sessionContext)`), define data structures for cart items, customer info, and order confirmation response. Ensure compatibility with existing Drizzle ORM models for `products`, `orders`, and `order_items`, and document expected behavior and error cases (invalid cart, insufficient stock, etc.).",
+            "status": "pending",
+            "testStrategy": "Review type definitions and interfaces for completeness and correctness, verify TypeScript compilation, and perform static checks to ensure consistency with existing entities."
+          },
+          {
+            "id": 2,
+            "title": "Implement cart validation and pricing calculations",
+            "description": "Validate cart items against the database and implement subtotal, shipping, VAT, and grand total calculations.",
+            "dependencies": [
+              "8.1"
+            ],
+            "details": "For each cart item, load the corresponding product from the `products` table, verify it exists, is active, and that quantity is > 0. Compute subtotal as sum of `unitPrice * quantity` using current product prices, apply fixed shipping of $50, then calculate 20% VAT on the subtotal, and derive grand total as `subtotal + shipping + VAT`. Handle and surface validation errors for missing products, invalid quantities, and empty carts.",
+            "status": "pending",
+            "testStrategy": "Unit test scenarios including valid carts, carts with nonexistent products, zero/negative quantities, and verify all monetary fields (subtotal, shipping, VAT, grand total) are calculated accurately for multiple combinations of items."
+          },
+          {
+            "id": 3,
+            "title": "Implement stock validation and deduction logic",
+            "description": "Ensure sufficient stock for each cart item and update product inventory atomically during checkout.",
+            "dependencies": [
+              "8.1",
+              "8.2"
+            ],
+            "details": "Query current stock levels for all cart products and validate that requested quantities do not exceed available stock. Implement stock deduction in a database transaction that also covers order and order_items creation. Use row-level locking or equivalent mechanism to avoid race conditions and overselling. If any item fails stock validation, abort the transaction and return a descriptive error.",
+            "status": "pending",
+            "testStrategy": "Write tests that simulate concurrent checkouts for the same product, verify that stock never becomes negative, and confirm that failed stock validations do not create orders or modify inventory."
+          },
+          {
+            "id": 4,
+            "title": "Create orders and order_items with price snapshots and unique order number",
+            "description": "Persist order and order_items records, including price snapshots, and generate a unique order number within a transaction.",
+            "dependencies": [
+              "8.2",
+              "8.3"
+            ],
+            "details": "Within a single transactional operation, insert into `orders` with customer info, monetary totals, and a generated unique `orderNumber` (e.g., using a sequence, ULID, or prefixed timestamp scheme). Insert related `order_items` rows capturing product ID, name, unit price, quantity, and line total as immutable snapshots. Ensure referential integrity and handle rollback on any failure.",
+            "status": "pending",
+            "testStrategy": "Verify orders and order_items are created correctly for various carts, ensure orderNumber uniqueness across many inserts, and confirm that rolling back the transaction removes partial data on error."
+          },
+          {
+            "id": 5,
+            "title": "Implement CheckoutService execution flow and confirmation response",
+            "description": "Wire together validation, pricing, stock deduction, and persistence into a cohesive CheckoutService.checkout method that returns the required confirmation payload.",
+            "dependencies": [
+              "8.2",
+              "8.3",
+              "8.4"
+            ],
+            "details": "Implement the main checkout method that orchestrates cart validation, totals calculation, stock validation/deduction, and order creation in the correct sequence inside a transaction. On success, return an object containing `orderId`, `orderNumber`, and a human-readable confirmation message. Map domain and database errors to structured error objects for upstream API handling.",
+            "status": "pending",
+            "testStrategy": "Create integration-style tests invoking the CheckoutService with valid and invalid carts, confirm that orders and order_items are persisted, stock is updated, and the returned confirmation matches the expected shape and values."
+          }
+        ]
+      },
+      {
+        "id": 9,
+        "title": "Implement Checkout API Endpoints",
+        "description": "Expose checkout functionality via API for the frontend.",
+        "details": "Create Elysia route `POST /api/checkout` that accepts cart items, customer info, and payment method. Use `CheckoutService` internally. Validate input with Zod. Handle both authenticated users (via session) and guest checkout (via session ID). Return standardized response with success, orderId, orderNumber, and message.",
+        "testStrategy": "Test endpoint with valid/invalid payloads, verify order creation, error responses, and that stock is reserved/deducted correctly.",
+        "priority": "high",
+        "dependencies": [
+          6,
+          8
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Define Checkout Request Schema with Zod",
+            "description": "Create a Zod schema that validates the incoming checkout payload including cart items, customer information, and payment method.",
+            "dependencies": [],
+            "details": "Define a Zod object schema for the checkout request body that includes cart items (array of items with productId, quantity, price), customer info (name, email, address, phone), and payment method (e.g., card, PayPal). Ensure required fields are marked and proper types are enforced.",
+            "status": "pending",
+            "testStrategy": "Test the schema with valid payloads and various invalid cases (missing fields, wrong types) to ensure validation works as expected."
+          },
+          {
+            "id": 2,
+            "title": "Create Standardized Checkout Response Structure",
+            "description": "Define a consistent response format for the checkout endpoint to return success status, orderId, orderNumber, and message.",
+            "dependencies": [],
+            "details": "Create a TypeScript interface or Zod schema for the checkout response with fields: success (boolean), orderId (string), orderNumber (string), and message (string). Use this structure in the route handler to ensure uniform responses.",
+            "status": "pending",
+            "testStrategy": "Verify that both success and error responses conform to the defined structure through unit tests."
+          },
+          {
+            "id": 3,
+            "title": "Implement Session Handling for Authenticated and Guest Users",
+            "description": "Set up session logic to distinguish between authenticated users and guest checkout using session ID.",
+            "dependencies": [],
+            "details": "Configure Elysia session plugin to extract user ID for authenticated users and fall back to session ID for guests. Pass this identifier to the CheckoutService to associate the order correctly.",
+            "status": "pending",
+            "testStrategy": "Test the endpoint with authenticated requests (valid session) and guest requests (no user ID) to confirm correct user/session identification."
+          },
+          {
+            "id": 4,
+            "title": "Create Elysia POST /api/checkout Route",
+            "description": "Implement the Elysia route handler for POST /api/checkout that validates input, uses CheckoutService, and returns standardized response.",
+            "dependencies": [
+              "9.1",
+              "9.2",
+              "9.3"
+            ],
+            "details": "Register a POST route at /api/checkout in Elysia. Use the Zod schema for validation, extract session data, call CheckoutService with cart, customer, payment, and user/session info, and return a standardized response with success, orderId, orderNumber, and message.",
+            "status": "pending",
+            "testStrategy": "Test the endpoint with valid payloads to verify order creation, and with invalid payloads to confirm proper error responses and that stock is reserved/deducted correctly."
+          },
+          {
+            "id": 5,
+            "title": "Integrate and Test CheckoutService in Route",
+            "description": "Ensure the CheckoutService is correctly called from the route and behaves as expected for both user types.",
+            "dependencies": [
+              "9.4"
+            ],
+            "details": "Inject or import CheckoutService into the route handler. Pass validated data and session context to the service. Handle any errors from the service and map them to appropriate HTTP responses while preserving the standardized response structure.",
+            "status": "pending",
+            "testStrategy": "Test end-to-end checkout flow with both authenticated and guest users, verify order creation in DB, correct order details, and that errors from CheckoutService are properly surfaced in the API response."
+          }
+        ]
+      },
+      {
+        "id": 10,
+        "title": "Integrate Better Auth for Authentication",
+        "description": "Set up Better Auth with PostgreSQL for user sessions and role-based access.",
+        "details": "Install Better Auth and configure it with PostgreSQL using Drizzle ORM. Define user roles (admin, consumer). Set up email/password authentication. Configure session management with secure cookies and proper expiration. Implement `GET /api/auth/session` to return current user and role.",
+        "testStrategy": "Test sign-up, sign-in, sign-out flows, verify sessions are created/destroyed, and role is correctly stored and returned.",
+        "priority": "high",
+        "dependencies": [
+          2,
+          3
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Install and configure Better Auth with PostgreSQL and Drizzle",
+            "description": "Set up Better Auth core, connect it to PostgreSQL, and wire it through Drizzle ORM.",
+            "dependencies": [],
+            "details": "Install required packages (better-auth, drizzle-orm, pg/postgres driver). Configure the Drizzle database instance for PostgreSQL and create a Better Auth instance using the Drizzle adapter with provider set to Postgres/pg. Ensure environment variables (DATABASE_URL, auth secret, etc.) are loaded securely and that migrations for Better Auth tables are generated and applied.",
+            "status": "pending",
+            "testStrategy": "Verify the app can start without DB/auth errors, Better Auth can connect to PostgreSQL, and Better Auth tables exist in the database."
+          },
+          {
+            "id": 2,
+            "title": "Define user schema and role model (admin, consumer)",
+            "description": "Extend or configure the Better Auth user model to support role-based access with admin and consumer roles.",
+            "dependencies": [
+              "10.1"
+            ],
+            "details": "Configure Better Auth (and Drizzle schema) so that users have a role field constrained to at least 'admin' and 'consumer'. Ensure that the seed script for Task 3 can create users with these roles consistently. Decide on how roles are stored (e.g., enum or text) and ensure the generated schema matches this design.",
+            "status": "pending",
+            "testStrategy": "Insert test users via seed or manual queries and confirm that roles are stored correctly and readable via Better Auth user queries."
+          },
+          {
+            "id": 3,
+            "title": "Implement email/password authentication flows",
+            "description": "Enable and configure email/password authentication in Better Auth using the PostgreSQL/Drizzle setup.",
+            "dependencies": [
+              "10.1",
+              "10.2"
+            ],
+            "details": "Enable the emailAndPassword option in the Better Auth configuration. Implement API routes/handlers for sign-up, sign-in, and sign-out aligned with the framework being used (e.g., Next.js API routes or Elysia handlers). Ensure password hashing, error handling, and any required email verification flags are correctly configured.",
+            "status": "pending",
+            "testStrategy": "Manually test sign-up, sign-in, and sign-out with valid and invalid credentials, verifying that users are created in the DB and errors are surfaced appropriately."
+          },
+          {
+            "id": 4,
+            "title": "Configure session management with secure cookies",
+            "description": "Set up session handling, secure cookie settings, and expiration policy for Better Auth sessions.",
+            "dependencies": [
+              "10.1",
+              "10.3"
+            ],
+            "details": "Configure Better Auth session options (expiry, rotation/update age). Set cookie flags such as HttpOnly, Secure, SameSite, and proper domain/path according to environment (dev vs prod). Ensure session creation on login and destruction on logout, and that the session is persisted in PostgreSQL.",
+            "status": "pending",
+            "testStrategy": "After login, inspect cookies and DB session records, confirm that sessions are created with correct expiry and are invalidated or removed after sign-out or expiry."
+          },
+          {
+            "id": 5,
+            "title": "Implement GET /api/auth/session endpoint for current user and role",
+            "description": "Create an endpoint that returns the authenticated user’s data including their role from Better Auth.",
+            "dependencies": [
+              "10.2",
+              "10.4"
+            ],
+            "details": "Add a GET /api/auth/session route that reads the current session via Better Auth, resolves the associated user, and returns a JSON payload with at least user id, email, and role. Handle unauthenticated requests by returning a clear 401 or null user. Ensure output format matches what downstream clients (e.g., admin route protection, cart logic) expect.",
+            "status": "pending",
+            "testStrategy": "Call /api/auth/session as an authenticated and unauthenticated client, verify status codes and that the response includes the correct user and role for logged-in sessions."
+          }
+        ]
+      },
+      {
+        "id": 11,
+        "title": "Implement Admin Authentication and Route Protection",
+        "description": "Create admin login page and protect admin routes with role-based middleware.",
+        "details": "Create admin login page in Next.js app using React Hook Form and Zod validation. Implement middleware (Elysia hook or Next.js middleware) that checks authentication and role (admin) for admin routes. Protect all `/api/admin/*` endpoints. Redirect unauthenticated/unauthorized users to login.",
+        "testStrategy": "Verify admin routes return 401/403 for unauthenticated/non-admin users and 200 for authenticated admins.",
+        "priority": "high",
+        "dependencies": [
+          10
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create Admin Login Page with React Hook Form and Zod",
+            "description": "Build a dedicated admin login page in the Next.js app using React Hook Form for form handling and Zod for client and server-side validation.",
+            "dependencies": [],
+            "details": "Create a new page at `/admin/login` (or similar) that renders a login form. Use React Hook Form to manage form state and submission. Define a Zod schema to validate email and password fields. Display validation errors and handle form submission to an admin login API route.",
+            "status": "pending",
+            "testStrategy": "Verify the form shows validation errors for invalid inputs (empty fields, invalid email, short password) and submits correctly for valid credentials."
+          },
+          {
+            "id": 2,
+            "title": "Implement Admin Login API Route",
+            "description": "Create an API route to handle admin login, authenticate credentials, and create a session with admin role information.",
+            "dependencies": [
+              "11.1"
+            ],
+            "details": "Create an API route (e.g., `/api/auth/admin/login`) that accepts email and password, verifies them against the database (or auth provider), checks if the user has the 'admin' role, and creates a session (e.g., JWT or cookie) with user and role data. Return appropriate success or error responses.",
+            "status": "pending",
+            "testStrategy": "Test login with valid admin credentials (expect success and session), invalid credentials (expect 401), and valid non-admin credentials (expect 401 or role error)."
+          },
+          {
+            "id": 3,
+            "title": "Implement Admin Role-Based Middleware",
+            "description": "Create middleware (Next.js middleware or Elysia hook) that checks authentication and admin role for admin routes.",
+            "dependencies": [
+              "11.2"
+            ],
+            "details": "Implement middleware that intercepts requests to `/admin/*` pages and `/api/admin/*` endpoints. It should verify the presence and validity of the session and ensure the user’s role is 'admin'. If not authenticated, redirect to the login page; if not admin, redirect to login or show 403.",
+            "status": "pending",
+            "testStrategy": "Verify middleware redirects unauthenticated requests to login, blocks non-admin authenticated users from admin routes, and allows access for authenticated admins."
+          },
+          {
+            "id": 4,
+            "title": "Protect Admin API Routes with Middleware",
+            "description": "Apply the admin role-based middleware to all `/api/admin/*` endpoints to ensure only authenticated admin users can access them.",
+            "dependencies": [
+              "11.3"
+            ],
+            "details": "Configure the middleware to run for all routes under `/api/admin/*`. Ensure each admin API route (e.g., `/api/admin/products`, `/api/admin/orders`) is protected so that unauthenticated or non-admin requests return 401/403 and authenticated admin requests proceed.",
+            "status": "pending",
+            "testStrategy": "Test admin API endpoints with unauthenticated requests (expect 401), authenticated non-admin requests (expect 403), and authenticated admin requests (expect 200 and correct data)."
+          },
+          {
+            "id": 5,
+            "title": "Protect Admin Pages and Implement Redirects",
+            "description": "Apply the admin role-based middleware to admin pages and ensure unauthenticated/unauthorized users are redirected to the login page.",
+            "dependencies": [
+              "11.3"
+            ],
+            "details": "Apply the middleware to all admin pages (e.g., `/admin`, `/admin/products`, `/admin/orders`). Configure redirects so that unauthenticated users are redirected to `/admin/login` and non-admin authenticated users are either redirected to login or shown an unauthorized page.",
+            "status": "pending",
+            "testStrategy": "Verify admin pages redirect unauthenticated users to login, block non-admin users, and allow access only to authenticated admins with correct redirects in place."
+          }
+        ]
+      },
+      {
+        "id": 12,
+        "title": "Implement Admin Product Management API",
+        "description": "Create CRUD APIs for products accessible only to admin users.",
+        "details": "Create Elysia routes: `GET /api/admin/products`, `POST /api/admin/products`, `PUT /api/admin/products/:id`, `DELETE /api/admin/products/:id`. Use `ProductService` and ensure all routes are protected by admin middleware. Support image upload via Vercel Blob/Cloudflare R2 and associate with product.",
+        "testStrategy": "Test CRUD operations as admin, verify products are created/updated/deleted in DB, and images are uploaded and linked correctly.",
+        "priority": "high",
+        "dependencies": [
+          6,
+          11
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Set up Elysia routes for admin product CRUD",
+            "description": "Define the Elysia routes for admin product management under the `/api/admin/products` prefix.",
+            "dependencies": [],
+            "details": "Create Elysia routes: `GET /api/admin/products`, `POST /api/admin/products`, `PUT /api/admin/products/:id`, `DELETE /api/admin/products/:id`. Ensure the routes are grouped under the `/api/admin` prefix and are ready to be protected by admin middleware.",
+            "status": "pending",
+            "testStrategy": "Verify that the routes are registered correctly and return appropriate placeholder responses when called."
+          },
+          {
+            "id": 2,
+            "title": "Integrate ProductService with admin product routes",
+            "description": "Connect the admin product routes to the ProductService to perform CRUD operations on products.",
+            "dependencies": [
+              "12.1"
+            ],
+            "details": "Inject or import the ProductService into the route handlers. Implement the route logic to call `ProductService.getAll()`, `create()`, `update()`, and `delete()` methods. Ensure proper error handling and response formatting.",
+            "status": "pending",
+            "testStrategy": "Test each route with valid and invalid inputs to confirm that ProductService methods are called correctly and return expected data or errors."
+          },
+          {
+            "id": 3,
+            "title": "Protect admin product routes with admin middleware",
+            "description": "Ensure all admin product routes are accessible only to authenticated admin users.",
+            "dependencies": [
+              "12.1",
+              "12.2"
+            ],
+            "details": "Apply the existing admin middleware (or create one if not present) to the admin product routes. Verify that non-admin users receive a 403 Forbidden error when attempting to access these routes.",
+            "status": "pending",
+            "testStrategy": "Test routes as a non-admin user and confirm access is denied. Test as an admin user and confirm access is granted and CRUD operations work."
+          },
+          {
+            "id": 4,
+            "title": "Implement image upload integration for products",
+            "description": "Add support for uploading product images using Vercel Blob or Cloudflare R2 and associate them with products.",
+            "dependencies": [
+              "12.2"
+            ],
+            "details": "Integrate the Vercel Blob or Cloudflare R2 SDK into the product creation and update flows. Handle multipart form data in the `POST /api/admin/products` and `PUT /api/admin/products/:id` routes to upload images and store the resulting URLs or references in the product data.",
+            "status": "pending",
+            "testStrategy": "Test product creation and update with image uploads, verify that images are stored in blob storage and the correct URLs are associated with the product in the database."
+          },
+          {
+            "id": 5,
+            "title": "Write and run tests for Admin Product Management API",
+            "description": "Create and execute tests to validate the full CRUD functionality and image upload behavior of the admin product API.",
+            "dependencies": [
+              "12.2",
+              "12.3",
+              "12.4"
+            ],
+            "details": "Write integration tests that cover all CRUD operations as an admin user. Test product creation, listing, updating, deletion, and image upload. Use a test database and mock blob storage if necessary to avoid affecting production data.",
+            "status": "pending",
+            "testStrategy": "Test CRUD operations as admin, verify products are created/updated/deleted in DB, and images are uploaded and linked correctly."
+          }
+        ]
+      },
+      {
+        "id": 13,
+        "title": "Implement Admin Order Management API",
+        "description": "Create APIs for admins to view and update orders.",
+        "details": "Create Elysia routes: `GET /api/admin/orders` (with status filters), `GET /api/admin/orders/:id`, `PUT /api/admin/orders/:id` (update status). Use Drizzle ORM to query `orders` and `order_items`. Ensure routes are protected by admin middleware. Support search and filtering by status, date, etc.",
+        "testStrategy": "Test order listing, detail view, and status updates as admin, verify changes are persisted in DB.",
+        "priority": "high",
+        "dependencies": [
+          8,
+          11
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Define Order and Order Item Schemas with Drizzle ORM",
+            "description": "Create or update Drizzle ORM schema definitions for the `orders` and `order_items` tables to match the application's data model.",
+            "dependencies": [],
+            "details": "Ensure the `orders` table includes fields like id, userId, status, total, createdAt, updatedAt, and any other relevant fields. The `order_items` table should reference `orders.id` and include product details, quantity, and price. Verify that foreign key constraints and indexes (e.g., on status, createdAt) are properly defined for efficient querying.",
+            "status": "pending",
+            "testStrategy": "Validate that the schema compiles without errors and that the generated database tables match the expected structure when the migration is applied."
+          },
+          {
+            "id": 2,
+            "title": "Implement Admin Middleware for Route Protection",
+            "description": "Create an admin middleware in Elysia to protect admin routes and ensure only authenticated admin users can access them.",
+            "dependencies": [],
+            "details": "The middleware should check the user's role or permissions from the session or JWT and return a 403 Forbidden error if the user is not an admin. Attach this middleware to the admin route group or individual routes as needed.",
+            "status": "pending",
+            "testStrategy": "Test that protected routes return 403 for non-admin users and 200/204 for admin users by simulating requests with different user roles."
+          },
+          {
+            "id": 3,
+            "title": "Create Admin Order List Route with Filtering",
+            "description": "Implement the `GET /api/admin/orders` route to list orders with support for filtering by status, date range, and search.",
+            "dependencies": [
+              "13.1",
+              "13.2"
+            ],
+            "details": "Use Drizzle ORM to query the `orders` table with optional filters (status, dateFrom, dateTo, search query). Support pagination (limit, offset) and return a standardized response with order list and metadata. Ensure the route is protected by the admin middleware.",
+            "status": "pending",
+            "testStrategy": "Test the route with various filter combinations (e.g., specific status, date range, search term) and verify the response contains the correct filtered and paginated orders."
+          },
+          {
+            "id": 4,
+            "title": "Create Admin Order Detail Route",
+            "description": "Implement the `GET /api/admin/orders/:id` route to retrieve a single order and its items by ID.",
+            "dependencies": [
+              "13.1",
+              "13.2"
+            ],
+            "details": "Use Drizzle ORM to join `orders` and `order_items` tables and return a detailed order object including customer info, items, and totals. Ensure the route is protected by admin middleware and returns 404 if the order does not exist.",
+            "status": "pending",
+            "testStrategy": "Test the route with valid and invalid order IDs, verify that the response includes all order details and associated items, and confirm 404 is returned for non-existent orders."
+          },
+          {
+            "id": 5,
+            "title": "Create Admin Order Status Update Route",
+            "description": "Implement the `PUT /api/admin/orders/:id` route to update an order's status.",
+            "dependencies": [
+              "13.1",
+              "13.2",
+              "13.4"
+            ],
+            "details": "Accept a status update payload (e.g., { status: 'shipped' }), validate it, and update the order in the database using Drizzle ORM. Ensure the route is protected by admin middleware, returns 404 if the order does not exist, and 400 for invalid status values. Emit any necessary events (e.g., order status changed).",
+            "status": "pending",
+            "testStrategy": "Test the route with valid status transitions and invalid payloads, verify that the order status is correctly updated in the database, and confirm appropriate error responses for invalid cases."
+          }
+        ]
+      },
+      {
+        "id": 14,
+        "title": "Implement Admin Media Management API",
+        "description": "Create APIs for uploading and managing product images in Vercel Blob/Cloudflare R2.",
+        "details": "Create Elysia routes: `GET /api/admin/medias`, `POST /api/admin/medias` (upload), `DELETE /api/admin/medias/:id`. Integrate with Vercel Blob or Cloudflare R2 SDK. Store image metadata (type, size, order) in `product_images` table. Ensure routes are protected by admin middleware.",
+        "testStrategy": "Test image upload, listing, and deletion, verify images are stored in blob storage and metadata is correct in DB.",
+        "priority": "high",
+        "dependencies": [
+          11,
+          12
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Design media data model and storage strategy",
+            "description": "Define how product images are stored and referenced across Vercel Blob/Cloudflare R2 and the product_images database table.",
+            "dependencies": [],
+            "details": "Clarify required metadata fields (e.g., productId, URL/key, mime type, size, order, alt text, createdAt) and ensure the product_images schema supports them. Decide on folder/key naming conventions in blob storage, max file size, allowed mime types, and how to link images to products for both Admin Product Management API and Admin Media Management API.",
+            "status": "pending",
+            "testStrategy": "Verify that the product_images table schema aligns with required fields, that example records correctly reference realistic blob keys/URLs, and that relationships with products are clear and queryable."
+          },
+          {
+            "id": 2,
+            "title": "Integrate Vercel Blob / Cloudflare R2 SDK",
+            "description": "Set up and configure the chosen blob storage SDK for image upload and deletion.",
+            "dependencies": [
+              "14.1"
+            ],
+            "details": "Choose between Vercel Blob and Cloudflare R2 based on project configuration and implement a thin storage service abstraction (e.g., uploadImage, deleteImageByKey, getPublicUrl). Configure credentials and environment variables, handle content-type detection, and ensure uploads are performed with appropriate ACL/permissions and error handling.",
+            "status": "pending",
+            "testStrategy": "Write integration or local tests that upload and delete a sample image via the service abstraction, confirming the file appears in the storage bucket/container and can be accessed or listed, and that deletion removes it successfully."
+          },
+          {
+            "id": 3,
+            "title": "Implement admin media listing endpoint (GET /api/admin/medias)",
+            "description": "Create an Elysia route to list stored product images with pagination and basic filtering.",
+            "dependencies": [
+              "14.1"
+            ],
+            "details": "Define the GET /api/admin/medias handler using Elysia and Drizzle (or project ORM) to query product_images, supporting optional filters such as productId and ordering by createdAt or order field. Ensure the route is protected by admin middleware and returns a standardized JSON shape including metadata and any derived public URL (if needed).",
+            "status": "pending",
+            "testStrategy": "Add tests that call the endpoint as an admin and non-admin, verifying that admin access returns the expected list, ordering, and filters, and that non-admin access is denied with the correct status and error body."
+          },
+          {
+            "id": 4,
+            "title": "Implement admin media upload endpoint (POST /api/admin/medias)",
+            "description": "Create an Elysia route for uploading product images, storing files in blob storage and metadata in product_images.",
+            "dependencies": [
+              "14.1",
+              "14.2"
+            ],
+            "details": "Implement POST /api/admin/medias to accept multipart/form-data or the agreed payload format, validate file type and size, and require a productId and optional order/alt text. Use the storage abstraction to upload the file to Vercel Blob/R2, then insert metadata into product_images in a single logical operation with error handling and rollback on failure. Protect with admin middleware.",
+            "status": "pending",
+            "testStrategy": "Test uploading valid and invalid files (wrong mime type, too large), confirm the image is present in blob storage, the metadata row is created with correct fields, and that failure cases do not leave orphaned records or files."
+          },
+          {
+            "id": 5,
+            "title": "Implement admin media deletion endpoint (DELETE /api/admin/medias/:id)",
+            "description": "Create an Elysia route to delete a product image from blob storage and the product_images table.",
+            "dependencies": [
+              "14.1",
+              "14.2",
+              "14.4"
+            ],
+            "details": "Implement DELETE /api/admin/medias/:id to look up the product_images record, use its storage key to delete the file via the storage abstraction, and then remove the DB record (or mark it as deleted) with proper transactional behavior. Enforce admin middleware and handle edge cases such as non-existent IDs or already-deleted files.",
+            "status": "pending",
+            "testStrategy": "Write tests that delete an existing image and verify that the file is removed from blob storage and the DB row is deleted, that attempting to delete a non-existent ID returns the correct error, and that partial failure modes are handled without leaving inconsistent state."
+          }
+        ]
+      },
+      {
+        "id": 15,
+        "title": "Implement Database-Backed Cart for Authenticated Users",
+        "description": "Migrate cart from localStorage to database for logged-in users, with sync on login.",
+        "details": "Create `CartService` and `cart_items` table (if not already present). Implement: `getCart(userId)`, `addToCart(userId, productId, quantity)`, `updateCartItem(userId, itemId, quantity)`, `removeFromCart(userId, itemId)`. On user login, sync localStorage cart with database cart. For guests, continue using localStorage with session ID.",
+        "testStrategy": "Test cart operations for logged-in users, verify persistence across devices and sessions, and correct sync on login.",
+        "priority": "medium",
+        "dependencies": [
+          10,
+          7
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Design and Create cart_items Database Table",
+            "description": "Create the cart_items table schema with proper relationships to users and products tables, including fields for userId, productId, quantity, and timestamps.",
+            "dependencies": [],
+            "details": "Design cart_items table with columns: cartItemId (Primary Key), userId (Foreign Key to users), productId (Foreign Key to products), quantity (INT), addedAt (TIMESTAMP), updatedAt (TIMESTAMP). Ensure proper indexing on userId and productId for query performance. Add constraints to prevent duplicate items per user-product combination.",
+            "status": "pending",
+            "testStrategy": "Verify table creation in database, test foreign key constraints, confirm indexes are created, and validate that duplicate user-product combinations are prevented."
+          },
+          {
+            "id": 2,
+            "title": "Implement CartService with Core CRUD Operations",
+            "description": "Create CartService class with methods for getCart, addToCart, updateCartItem, and removeFromCart operations using Drizzle ORM.",
+            "dependencies": [
+              "15.1"
+            ],
+            "details": "Implement CartService with four main methods: getCart(userId) returns all cart items for user with product details, addToCart(userId, productId, quantity) inserts or updates cart item, updateCartItem(userId, itemId, quantity) modifies quantity, removeFromCart(userId, itemId) deletes item. Use Drizzle ORM for database operations and include error handling for invalid inputs and database failures.",
+            "status": "pending",
+            "testStrategy": "Unit test each method with valid and invalid inputs, verify correct database operations, test edge cases like duplicate additions and quantity updates, confirm error handling for non-existent users or products."
+          },
+          {
+            "id": 3,
+            "title": "Create Elysia API Routes for Cart Operations",
+            "description": "Build protected API endpoints for cart operations: GET /api/cart, POST /api/cart, PUT /api/cart/:itemId, DELETE /api/cart/:itemId.",
+            "dependencies": [
+              "15.2"
+            ],
+            "details": "Create four Elysia routes protected by authentication middleware. GET /api/cart retrieves user's cart, POST /api/cart adds item (accepts productId, quantity), PUT /api/cart/:itemId updates quantity, DELETE /api/cart/:itemId removes item. Validate input with Zod schemas. Return standardized JSON responses with status, data, and error messages.",
+            "status": "pending",
+            "testStrategy": "Test all endpoints with authenticated user sessions, verify proper authorization checks, validate input validation with invalid payloads, confirm correct HTTP status codes, test edge cases like empty carts and non-existent items."
+          },
+          {
+            "id": 4,
+            "title": "Implement localStorage to Database Sync on Login",
+            "description": "Create login sync logic that merges localStorage cart items into database cart for authenticated users.",
+            "dependencies": [
+              "15.2",
+              "15.3"
+            ],
+            "details": "On successful user login, retrieve localStorage cart items (if any exist with session ID). For each item in localStorage, check if it exists in database cart. If exists, add quantities together; if not, insert as new cart item. Clear localStorage cart after sync. Handle conflicts by preferring database quantities if they're more recent. Implement on both frontend (JavaScript) and backend (sync endpoint).",
+            "status": "pending",
+            "testStrategy": "Test login with empty localStorage, test login with existing localStorage items, verify quantities are correctly merged, confirm localStorage is cleared after sync, test that database cart persists across sessions, verify guest carts remain in localStorage."
+          },
+          {
+            "id": 5,
+            "title": "Implement Guest Cart Handling with Session IDs",
+            "description": "Maintain localStorage-based cart for guest users with session ID tracking and ensure proper separation from authenticated user carts.",
+            "dependencies": [
+              "15.1"
+            ],
+            "details": "Generate unique session IDs for guest users (stored in localStorage or cookies). Store guest cart items in localStorage with session ID prefix. Ensure guest carts don't interfere with authenticated user carts. Implement logic to convert guest cart to authenticated cart on login (via sync operation). Add session ID validation to prevent unauthorized access to guest carts. Include session expiration logic for abandoned guest carts.",
+            "status": "pending",
+            "testStrategy": "Test guest cart creation and persistence, verify session IDs are unique, test guest-to-authenticated conversion on login, confirm guest carts don't mix with user carts, test session expiration, verify localStorage structure maintains separation between guest and user data."
+          }
+        ]
+      },
+      {
+        "id": 16,
+        "title": "Implement User Order History API",
+        "description": "Create protected API for users to view their order history.",
+        "details": "Create Elysia routes: `GET /api/orders` (for authenticated users, returns their orders) and `GET /api/orders/:id` (order details). Use Drizzle ORM to query `orders` and `order_items` filtered by `userId`. Ensure routes are protected by authentication middleware.",
+        "testStrategy": "Test order history as authenticated user, verify only their orders are returned and details are correct.",
+        "priority": "medium",
+        "dependencies": [
+          8,
+          10
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Set up authentication middleware for order routes",
+            "description": "Create and configure authentication middleware to protect the order history API endpoints, ensuring only authenticated users can access their orders.",
+            "dependencies": [],
+            "details": "Implement an Elysia macro or middleware using the authentication framework (Better Auth or Lucia) to validate user sessions. Extract userId from the authenticated session and make it available to route handlers. Configure the middleware to return 401 Unauthorized for unauthenticated requests.",
+            "status": "pending",
+            "testStrategy": "Test middleware with valid session tokens (should pass through), invalid/missing tokens (should return 401), and verify userId is correctly extracted and available in route context."
+          },
+          {
+            "id": 2,
+            "title": "Create GET /api/orders route with Drizzle ORM query",
+            "description": "Implement the GET /api/orders endpoint that returns all orders for the authenticated user, filtered by userId.",
+            "dependencies": [
+              "16.1"
+            ],
+            "details": "Create an Elysia route handler that uses Drizzle ORM to query the orders table filtered by the authenticated userId. Return a paginated list of orders with relevant fields (orderId, orderNumber, status, total, createdAt). Include optional query parameters for pagination (limit, offset) and sorting.",
+            "status": "pending",
+            "testStrategy": "Test endpoint as authenticated user, verify only their orders are returned, test pagination parameters, verify response structure and data accuracy, test with users having no orders."
+          },
+          {
+            "id": 3,
+            "title": "Create GET /api/orders/:id route with order details",
+            "description": "Implement the GET /api/orders/:id endpoint that returns detailed information about a specific order including order items.",
+            "dependencies": [
+              "16.1"
+            ],
+            "details": "Create an Elysia route handler that accepts an orderId parameter, queries the orders table and joins with order_items table using Drizzle ORM. Verify the order belongs to the authenticated user before returning details. Include order metadata, line items with product information, quantities, and prices.",
+            "status": "pending",
+            "testStrategy": "Test endpoint with valid orderId belonging to authenticated user (should return full details), invalid orderId (should return 404), orderId belonging to different user (should return 403), verify order_items are correctly joined and populated."
+          },
+          {
+            "id": 4,
+            "title": "Implement authorization checks to prevent unauthorized access",
+            "description": "Add authorization logic to ensure users can only view their own orders and prevent access to other users' order data.",
+            "dependencies": [
+              "16.2",
+              "16.3"
+            ],
+            "details": "Add userId validation in both GET /api/orders and GET /api/orders/:id routes to compare the authenticated userId with the order's userId. Return 403 Forbidden if a user attempts to access another user's order. Log unauthorized access attempts for security monitoring.",
+            "status": "pending",
+            "testStrategy": "Test accessing own orders (should succeed), accessing another user's orders (should return 403), verify error messages don't leak information about order existence, test with multiple user accounts."
+          },
+          {
+            "id": 5,
+            "title": "Test complete order history API with integration tests",
+            "description": "Create comprehensive integration tests for the entire order history API including authentication, authorization, and data accuracy.",
+            "dependencies": [
+              "16.1",
+              "16.2",
+              "16.3",
+              "16.4"
+            ],
+            "details": "Write integration tests covering: authenticated user retrieving their orders, pagination functionality, filtering and sorting, retrieving specific order details with items, authorization failures, edge cases (empty order history, deleted orders). Mock or use test database with sample order data. Verify response status codes, data structure, and business logic.",
+            "status": "pending",
+            "testStrategy": "Run full integration test suite with multiple test scenarios, verify all endpoints return correct HTTP status codes, validate response schemas, test with various user roles and permissions, measure API response times, verify no data leakage between users."
+          }
+        ]
+      },
+      {
+        "id": 17,
+        "title": "Configure Vercel Deployment and Production Settings",
+        "description": "Set up Vercel environment variables, automated migrations, and production database connection.",
+        "details": "Configure Vercel project with environment variables: `DATABASE_URL` (Neon), `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `NEXT_PUBLIC_SITE_URL`, `BLOB_READ_WRITE_TOKEN`. Set up automated database migrations on deploy using Drizzle Kit. Configure Vercel Blob or Cloudflare R2 for production image storage.",
+        "testStrategy": "Deploy to Vercel, verify environment variables are set, migrations run, and application connects to production database.",
+        "priority": "medium",
+        "dependencies": [
+          2,
+          4,
+          10,
+          14
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Configure Vercel Environment Variables",
+            "description": "Set up required environment variables in the Vercel project settings for the production environment.",
+            "dependencies": [],
+            "details": "In the Vercel dashboard, navigate to the project settings, then the Environment Variables tab. Add the following variables: DATABASE_URL (pointing to the Neon production database), BETTER_AUTH_SECRET, BETTER_AUTH_URL, NEXT_PUBLIC_SITE_URL, and BLOB_READ_WRITE_TOKEN. Ensure they are marked for the Production environment and saved.",
+            "status": "pending",
+            "testStrategy": "Verify in the Vercel UI that all environment variables are present and correctly set for the Production environment."
+          },
+          {
+            "id": 2,
+            "title": "Update Build Script for Automated Migrations",
+            "description": "Modify the project’s build script to run Drizzle Kit migrations during Vercel deployment.",
+            "dependencies": [
+              "17.1"
+            ],
+            "details": "Update the build script in package.json (e.g., \"build\": \"drizzle-kit generate && drizzle-kit push && next build\") so that Drizzle Kit migrations are applied as part of the Vercel build process. Ensure the Drizzle configuration is set to use the production DATABASE_URL from environment variables.",
+            "status": "pending",
+            "testStrategy": "Trigger a new deployment and check the build logs to confirm that Drizzle Kit migrations ran successfully without errors."
+          },
+          {
+            "id": 3,
+            "title": "Verify Production Database Connection",
+            "description": "Ensure the application can connect to the production database using the Vercel environment variables.",
+            "dependencies": [
+              "17.1",
+              "17.2"
+            ],
+            "details": "After deploying, confirm that the application connects to the Neon production database by checking logs for successful connection and by verifying that seeded data (from Task 3) is accessible. Ensure the DATABASE_URL in Vercel points to the correct Neon instance and that the database allows connections from Vercel IPs.",
+            "status": "pending",
+            "testStrategy": "Deploy the app and verify that the health check endpoint (or similar) reports a successful database connection and that seeded data is available."
+          },
+          {
+            "id": 4,
+            "title": "Configure Production Image Storage (Vercel Blob or Cloudflare R2)",
+            "description": "Set up and configure the chosen production image storage solution (Vercel Blob or Cloudflare R2) and update the application to use it.",
+            "dependencies": [
+              "17.1"
+            ],
+            "details": "If using Vercel Blob, ensure the BLOB_READ_WRITE_TOKEN is correctly set and the Blob storage is configured in the Vercel project. If using Cloudflare R2, configure the R2 bucket and set the necessary credentials as environment variables. Update the application code to use the production storage for image uploads and retrieval.",
+            "status": "pending",
+            "testStrategy": "Upload an image through the application and verify it is stored in the configured production storage (Blob or R2) and can be retrieved via its URL."
+          },
+          {
+            "id": 5,
+            "title": "Test Full Production Deployment",
+            "description": "Perform a complete deployment and end‑to‑end test of the production setup.",
+            "dependencies": [
+              "17.1",
+              "17.2",
+              "17.3",
+              "17.4"
+            ],
+            "details": "Trigger a new production deployment on Vercel. After deployment, verify that environment variables are correctly loaded, migrations ran, the application connects to the production database, and image storage works as expected. Perform basic smoke tests on key routes and functionality.",
+            "status": "pending",
+            "testStrategy": "Deploy to Vercel, confirm environment variables are set, check build logs for migration success, verify database connectivity, and test image upload and retrieval in the deployed app."
+          }
+        ]
+      },
+      {
+        "id": 18,
+        "title": "Implement Performance Optimizations and Health Checks",
+        "description": "Optimize database queries, implement caching, and set up comprehensive health checks.",
+        "details": "Optimize database queries (avoid N+1, add indexes). Implement caching for product listings and categories using Redis or similar. Add lazy loading and responsive images with Next.js Image component. Implement health check endpoint that verifies database connectivity, storage, and auth. Set up error logging and monitoring.",
+        "testStrategy": "Test performance under load, verify health checks pass, and confirm error logging captures issues correctly.",
+        "priority": "medium",
+        "dependencies": [
+          6,
+          8,
+          17
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Optimize Database Queries and Address N+1 Issues",
+            "description": "Review and refactor database access patterns to eliminate N+1 queries, reduce unnecessary data retrieval, and improve query performance.",
+            "dependencies": [],
+            "details": "Audit all high-traffic and complex database interactions (e.g., product listing, checkout, order history, admin listings) to identify N+1 query patterns and inefficient joins. Refactor queries to use eager loading, proper joins, or batched queries as appropriate. Ensure queries only select required columns and apply proper WHERE filters and pagination. Coordinate with existing services (ProductService, CheckoutService, order-related services) to avoid behavioral changes while improving performance.",
+            "status": "pending",
+            "testStrategy": "Use query logs and the database query planner/explain to compare execution plans before and after changes. Verify that the number of queries per request is reduced (especially for list endpoints) and that response times improve under load tests without changing functional behavior."
+          },
+          {
+            "id": 2,
+            "title": "Design and Apply Database Indexes for Critical Queries",
+            "description": "Introduce and tune database indexes on frequently used query paths to support optimized access patterns.",
+            "dependencies": [
+              "18.1"
+            ],
+            "details": "Identify columns frequently used in WHERE clauses, JOIN conditions, ORDER BY, and filtering (e.g., product identifiers, category IDs, order status, userId, createdAt). Design indexes for these columns while avoiding over-indexing. Add or adjust composite indexes for common multi-column filters (e.g., status + createdAt, userId + createdAt). Implement schema migrations to create/update indexes and document their intended usage.",
+            "status": "pending",
+            "testStrategy": "Run EXPLAIN/EXPLAIN ANALYZE on key queries to confirm index usage and reduced full table scans. Perform regression tests on write-heavy operations (create/update/delete) to ensure index changes do not introduce unacceptable overhead. Validate that API response times for indexed paths improve under load testing."
+          },
+          {
+            "id": 3,
+            "title": "Implement Redis-Based Caching for Product Listings and Categories",
+            "description": "Introduce a Redis (or similar) caching layer for read-heavy product listing and category endpoints.",
+            "dependencies": [
+              "18.1",
+              "18.2"
+            ],
+            "details": "Integrate Redis (or chosen cache store) into the backend and configure connection, timeouts, and error handling. Define cache keys and TTL strategies for product listings, categories, and other read-heavy endpoints (e.g., category trees, featured products). Implement cache read-through/write-through or cache-aside patterns in ProductService and related services. Ensure cache invalidation is triggered on product and category create/update/delete operations from admin APIs.",
+            "status": "pending",
+            "testStrategy": "Verify that cache hits return correct data and cache misses populate the cache correctly. Simulate product/category updates and ensure cache invalidation or refresh logic keeps responses consistent. Measure cache hit rate and compare response times and DB query counts for cached endpoints before and after enabling caching under load."
+          },
+          {
+            "id": 4,
+            "title": "Optimize Frontend Media with Next.js Image, Lazy Loading, and Responsive Sizing",
+            "description": "Enhance frontend image performance by using Next.js Image component with lazy loading and responsive images.",
+            "dependencies": [],
+            "details": "Identify all product and media images on the Next.js frontend and migrate them to use the Next.js Image component. Configure appropriate layout, sizes, and srcSet to serve responsive images for different viewports and devices. Enable lazy loading for below-the-fold images and apply sensible quality and format settings (e.g., WebP where supported). Ensure compatibility with existing media storage (Vercel Blob/Cloudflare R2) and URLs produced by media APIs.",
+            "status": "pending",
+            "testStrategy": "Use Lighthouse or similar tooling to compare performance scores and image-related metrics (Largest Contentful Paint, total image bytes) before and after changes. Manually verify that images render correctly across devices and breakpoints, and that lazy loading works as expected without layout shifts."
+          },
+          {
+            "id": 5,
+            "title": "Implement Health Check Endpoint and Centralized Logging & Monitoring",
+            "description": "Create a comprehensive health check endpoint and set up error logging and monitoring for core dependencies.",
+            "dependencies": [
+              "18.1",
+              "18.2",
+              "18.3"
+            ],
+            "details": "Implement an Elysia health check endpoint (e.g., /health or /healthz) that verifies connectivity to the database, cache store (Redis), storage provider (Vercel Blob/Cloudflare R2), and authentication/session mechanism. Define clear health statuses (OK/DEGRADED/FAIL) and machine-readable responses. Integrate centralized logging (e.g., with structured logs) for errors and key events, and configure an APM/monitoring solution or log aggregation service. Add basic alerts for critical failures (database down, cache unreachable, storage/auth errors).",
+            "status": "done",
+            "testStrategy": "Manually and via automated tests, call the health endpoint and verify that it reports correct statuses under normal and simulated failure conditions (e.g., purposely breaking DB/cache connections in a test environment). Confirm that errors and unhandled exceptions are logged with sufficient context, that logs appear in the monitoring system, and that alerts fire when critical dependencies are unavailable."
+          }
+        ]
+      }
+    ],
+    "metadata": {
+      "created": "2025-12-07T01:00:51.748Z",
+      "updated": "2025-12-07T01:15:33.566Z",
+      "description": "Tasks for master context"
+    }
+  }
+}

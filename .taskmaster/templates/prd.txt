@@ -1,0 +1,818 @@
+<context>
+# Overview  
+Audiophile is a modern B2C e-commerce platform specializing in premium audio devices (headphones, speakers, and earphones). The platform solves the problem of providing a seamless online shopping experience for audio enthusiasts while giving sellers a comprehensive admin panel to manage products, orders, and website content. Built as a full-stack Next.js application with a robust database backend, it supports both authenticated users and guest checkout, ensuring accessibility and convenience for all customers.
+
+The platform is valuable because it combines:
+- A beautiful, responsive frontend optimized for all device sizes
+- A complete database-driven backend with proper inventory management
+- Role-based access control for admin and consumer users
+- Real-time stock reservation system to prevent overselling
+- Comprehensive order management and tracking capabilities
+
+# Core Features  
+
+## 1. Product Catalog Management
+- **What it does**: Displays audio products organized by categories (headphones, speakers, earphones) with detailed product pages including images, descriptions, features, and included items
+- **Why it's important**: Core functionality that drives sales and helps customers make informed purchasing decisions
+- **How it works**: Products are stored in PostgreSQL database with support for multiple image sizes (mobile, tablet, desktop), related products, and comprehensive metadata. Products can be marked as "new" and include detailed specifications
+
+## 2. Shopping Cart System
+- **What it does**: Allows users to add/remove products, edit quantities, and persist cart state across browser sessions
+- **Why it's important**: Essential for converting browsing into purchases
+- **How it works**: Currently uses localStorage for persistence, migrating to database-backed cart with 30-minute stock reservations to prevent overselling. Supports both authenticated users and guest sessions
+
+## 3. Checkout Process
+- **What it does**: Handles order creation with form validation, payment method selection (e-money or cash on delivery), and order confirmation
+- **Why it's important**: Final step in the purchase funnel, must be secure and user-friendly
+- **How it works**: Validates customer information, calculates totals (subtotal + $50 shipping + 20% VAT on products), creates order records, and reserves stock. Supports both logged-in users and guest checkout
+
+## 4. Admin Panel
+- **What it does**: Provides authenticated admin users with tools to manage products, view/update orders, upload media, and configure site settings
+- **Why it's important**: Enables business operations and content management without technical knowledge
+- **How it works**: Protected routes with role-based access control (Better Auth), CRUD operations for products, order status management, and media library management
+
+## 5. User Authentication & Authorization
+- **What it does**: Secure login/registration system with role-based access (admin vs consumer)
+- **Why it's important**: Protects admin resources and enables personalized experiences for consumers
+- **How it works**: Better Auth integration with PostgreSQL, supporting email/password and OAuth providers. Sessions managed securely with proper expiration
+
+## 6. Inventory Management
+- **What it does**: Tracks product stock levels and prevents overselling through reservation system
+- **Why it's important**: Critical for maintaining customer trust and preventing order cancellations
+- **How it works**: Stock reservations created when items added to cart (30-minute expiry), actual stock deducted on successful checkout. Automatic cleanup of expired reservations
+
+## 7. Order Management
+- **What it does**: Tracks orders through lifecycle (pending → processing → shipped → delivered) with order history for users
+- **Why it's important**: Enables order fulfillment and provides transparency to customers
+- **How it works**: Order records with denormalized product snapshots (for historical accuracy), status tracking, and customer information storage
+
+## 8. Media Management
+- **What it does**: Stores and serves product images in multiple sizes and types (product, category, gallery, related)
+- **Why it's important**: Optimizes performance and provides appropriate images for different contexts
+- **How it works**: Images stored in Vercel Blob or Cloudflare R2, URLs stored in database with metadata (size, type, order)
+
+# User Experience  
+
+## User Personas
+
+### Seller (Admin)
+- **Needs**: A B2C platform to sell audio devices with an admin panel to update website content and track orders
+- **Goals**: 
+  - Manage product catalog efficiently
+  - Monitor and fulfill orders
+  - Update website content and media
+  - Track business metrics
+- **Pain Points**: Need intuitive interface that doesn't require technical expertise
+
+### Buyer (Consumer)
+- **Needs**: A platform to browse and purchase audio devices with confidence
+- **Goals**:
+  - Find products that match their needs
+  - Make informed purchasing decisions
+  - Complete purchases easily
+  - Track order status
+- **Pain Points**: Want fast, reliable experience without friction
+
+## Key User Flows
+
+### Consumer Flows
+
+1. **Product Discovery & Browsing**
+   - View optimal layout for device screen size (responsive design)
+   - Browse products by category (headphones, speakers, earphones)
+   - See hover states for all interactive elements
+   - View featured products on homepage
+   - Navigate to product detail pages
+
+2. **Product Detail View**
+   - View product images in gallery format
+   - Read product description and features
+   - See included items in the box
+   - View related products
+   - Add product to cart with quantity selection
+
+3. **Shopping Cart Management**
+   - Add/remove products from cart
+   - Edit product quantities in cart
+   - View cart totals (subtotal, shipping, VAT, grand total)
+   - Cart persists across browser sessions (localStorage → database migration)
+   - Proceed to checkout
+
+4. **Checkout Process**
+   - Fill in all required fields (name, email, phone, address, zip, city, country)
+   - Receive form validations if fields are missed or incorrect
+   - Select payment method (e-money or cash on delivery)
+   - If e-money: enter e-money number and PIN
+   - See correct checkout totals:
+     - Shipping always adds $50 to the order
+     - VAT calculated as 20% of product total (excluding shipping)
+   - Submit order and see confirmation modal with order summary
+   - Receive order number for tracking
+
+5. **Order Tracking** (Future Enhancement)
+   - View order history (for logged-in users)
+   - Track order status
+   - View order details and receipt
+
+### Admin Flows
+
+1. **Product Management**
+   - Login to admin panel
+   - View list of all products
+   - Create new products with images, descriptions, pricing
+   - Edit existing products
+   - Delete products
+   - Manage product categories
+   - Upload and manage product images
+
+2. **Order Management**
+   - View all orders with status filters
+   - Update order status (pending → processing → shipped → delivered)
+   - View order details and customer information
+   - Process refunds/cancellations
+
+3. **Media Management**
+   - Upload product images
+   - Organize images by product
+   - Manage image sizes and types
+   - Delete unused images
+
+4. **Settings Management**
+   - Configure site settings
+   - Manage user roles
+   - View system health and metrics
+
+## UI/UX Considerations
+
+- **Responsive Design**: Mobile-first approach with breakpoints for mobile, tablet, and desktop
+- **Performance**: Optimized image loading with lazy loading and responsive images
+- **Accessibility**: Proper semantic HTML, ARIA labels, keyboard navigation
+- **Visual Feedback**: Loading states, hover effects, form validation messages
+- **Error Handling**: Clear error messages and graceful degradation
+- **Progressive Enhancement**: Works without JavaScript for basic functionality
+- **Consistent Design System**: Using Tailwind CSS with custom design tokens
+</context>
+<PRD>
+# Technical Architecture  
+
+## System Components
+
+### Frontend Layer
+- **Framework**: Next.js 16 (App Router) with React 19
+- **Styling**: Tailwind CSS 4 with custom design system
+- **UI Components**: Radix UI primitives + shadcn/ui components
+- **State Management**: React hooks + localStorage (migrating to database)
+- **Image Optimization**: Next.js Image component with Vercel Blob/R2
+- **Animations**: GSAP for page transitions and scroll animations
+- **Form Handling**: React Hook Form with Zod validation
+
+### Backend Layer
+- **API Framework**: Elysia.js (Bun runtime) with OpenAPI documentation
+- **Database**: PostgreSQL 16 (local via Docker, production via Neon)
+- **ORM**: Drizzle ORM with TypeScript type safety
+- **Authentication**: Better Auth with session management
+- **File Storage**: Vercel Blob Storage or Cloudflare R2 for product images
+
+### Infrastructure
+- **Runtime**: Bun (development) / Node.js (production)
+- **Hosting**: Vercel (frontend + API routes)
+- **Database**: Docker Compose (local) / Neon PostgreSQL (production)
+- **Storage**: Vercel Blob or Cloudflare R2
+- **CI/CD**: Vercel automatic deployments with database migrations
+
+## Data Models
+
+### Authentication Models (Better Auth)
+- **users**: User accounts with roles (admin/consumer)
+- **sessions**: Active user sessions
+- **accounts**: OAuth and email/password accounts
+- **verifications**: Email verification and password reset tokens
+
+### E-commerce Models
+- **categories**: Product categories (headphones, speakers, earphones)
+- **products**: Product catalog with pricing, stock, descriptions
+- **product_images**: Multi-size, multi-type image storage
+- **product_includes**: Items included in product box
+- **related_products**: Product recommendations (self-referencing)
+- **orders**: Order records with customer and payment info
+- **order_items**: Individual line items in orders (with price snapshots)
+- **stock_reservations**: Temporary stock holds for cart items (30-min expiry)
+
+### Key Relationships
+- Categories → Products (one-to-many)
+- Products → Images, Includes, Related Products (one-to-many)
+- Users → Orders (one-to-many, optional for guest checkout)
+- Orders → Order Items (one-to-many)
+- Products → Stock Reservations (one-to-many)
+
+## APIs and Integrations
+
+### Public APIs
+- `GET /api/products` - List all products
+- `GET /api/products/:slug` - Get product details
+- `GET /api/products/category/:category` - Filter by category
+- `POST /api/checkout` - Process order
+- `GET /api/health` - System health check
+
+### Protected APIs (Consumer)
+- `GET /api/orders` - User's order history
+- `GET /api/cart` - Get user's cart (database-backed)
+
+### Admin APIs (Admin Role Required)
+- `GET/POST/PUT/DELETE /api/admin/products` - Product CRUD
+- `GET/PUT /api/admin/orders` - Order management
+- `GET/POST/DELETE /api/admin/medias` - Media management
+- `GET/PUT /api/admin/settings` - Site settings
+
+### Authentication APIs (Better Auth)
+- `POST /api/auth/sign-up` - User registration
+- `POST /api/auth/sign-in` - User login
+- `POST /api/auth/sign-out` - User logout
+- `GET /api/auth/session` - Get current session
+- `POST /api/auth/forgot-password` - Password reset request
+- `POST /api/auth/reset-password` - Password reset
+
+## Infrastructure Requirements
+
+### Development Environment
+- Bun 1.0+ or Node.js 20+
+- Docker and Docker Compose for PostgreSQL
+- Environment variables in `.env.local`
+- Database migrations via Drizzle Kit
+
+### Production Environment
+- Vercel hosting with Next.js build
+- Neon PostgreSQL or similar managed database
+- Environment variables configured in Vercel
+- Automated database migrations on deploy
+- Vercel Blob or Cloudflare R2 for image storage
+
+### Security Requirements
+- HTTPS only in production
+- Environment variable protection
+- Role-based access control (RBAC)
+- Input validation and sanitization
+- CSRF protection
+- Rate limiting on API endpoints
+- Secure session management
+
+# Development Roadmap  
+
+## Phase 1: Database Migration & Core API (MVP Foundation)
+**Goal**: Replace static JSON data with database-backed APIs
+
+### Scope:
+1. **Database Setup & Migration**
+   - Complete database schema implementation (already done)
+   - Database seed script for initial data
+   - Migration scripts for production deployment
+   - Health check endpoint for database connectivity
+
+2. **Products API Migration**
+   - Replace `ProductService` to use database queries
+   - Implement product listing with pagination
+   - Implement product detail by slug
+   - Implement category filtering
+   - Maintain backward compatibility with existing frontend
+
+3. **Checkout API Migration**
+   - Replace fake checkout with database order creation
+   - Implement order number generation
+   - Store customer information (support guest checkout)
+   - Create order items with price snapshots
+   - Calculate and store totals (subtotal, shipping, VAT, grand total)
+   - Return order confirmation with order number
+
+4. **Stock Management Foundation**
+   - Implement stock reservation service
+   - Create reservations when items added to cart
+   - Check available stock (total - reserved)
+   - Prevent checkout if insufficient stock
+   - Cleanup expired reservations (cron job or scheduled task)
+
+### Success Criteria:
+- All product data served from database
+- Orders successfully created in database
+- Stock reservations working correctly
+- No breaking changes to frontend
+
+## Phase 2: Authentication & Authorization (Security Foundation)
+**Goal**: Implement secure user authentication and role-based access
+
+### Scope:
+1. **Better Auth Integration**
+   - Install and configure Better Auth
+   - Set up database schema for Better Auth tables
+   - Configure email/password authentication
+   - Implement session management
+   - Set up environment variables
+
+2. **Admin Authentication**
+   - Create admin login page
+   - Protect admin routes with authentication middleware
+   - Implement role-based access control (admin vs consumer)
+   - Create initial admin user (seed script or manual)
+
+3. **Consumer Authentication** (Optional for MVP)
+   - User registration page
+   - User login page
+   - Session persistence
+   - Optional: OAuth providers (GitHub, Google)
+
+### Success Criteria:
+- Admin can securely log in
+- Admin routes protected from unauthorized access
+- Sessions managed securely
+- Role-based access working correctly
+
+## Phase 3: Admin Panel Database Integration (Content Management)
+**Goal**: Enable admins to manage products and orders via database
+
+### Scope:
+1. **Product Management**
+   - Admin product list page (database queries)
+   - Create product form with validation
+   - Edit product functionality
+   - Delete product with confirmation
+   - Product image upload and management
+   - Category management
+
+2. **Order Management**
+   - Admin order list with status filters
+   - Order detail view
+   - Update order status (pending → processing → shipped → delivered)
+   - Order search and filtering
+   - Export orders (optional)
+
+3. **Media Management**
+   - Media library interface
+   - Image upload to Vercel Blob/R2
+   - Image association with products
+   - Delete unused images
+   - Image size and type management
+
+### Success Criteria:
+- Admins can fully manage products via UI
+- Admins can view and update orders
+- Media uploads working correctly
+- All changes persisted to database
+
+## Phase 4: Enhanced Cart & User Features (User Experience)
+**Goal**: Improve user experience with database-backed features
+
+### Scope:
+1. **Database-Backed Cart**
+   - Migrate cart from localStorage to database
+   - Sync cart on user login
+   - Persist cart across devices (for logged-in users)
+   - Guest cart still uses localStorage (with session ID)
+   - Cart expiration and cleanup
+
+2. **User Order History**
+   - Order history page for logged-in users
+   - Order detail view
+   - Order status tracking
+   - Order receipt/invoice view
+
+3. **User Profile Management**
+   - User profile page
+   - Edit profile information
+   - Change password
+   - View account settings
+
+### Success Criteria:
+- Cart persists for logged-in users
+- Users can view their order history
+- Profile management working
+
+## Phase 5: Production Readiness & Optimization (Polish)
+**Goal**: Prepare for production deployment and optimize performance
+
+### Scope:
+1. **Deployment Configuration**
+   - Vercel environment variables setup
+   - Database migration automation
+   - Production database connection
+   - Image storage configuration (Vercel Blob/R2)
+   - Build and deployment verification
+
+2. **Performance Optimization**
+   - Database query optimization
+   - Image optimization and lazy loading
+   - API response caching
+   - Static page generation where appropriate
+   - Code splitting and bundle optimization
+
+3. **Error Handling & Monitoring**
+   - Comprehensive error handling
+   - Error logging and tracking
+   - User-friendly error messages
+   - Health check endpoints
+   - Basic monitoring setup
+
+4. **Testing & Quality Assurance**
+   - API endpoint testing
+   - Database operation testing
+   - Critical user flow testing
+   - Cross-browser testing
+   - Mobile responsiveness verification
+
+### Success Criteria:
+- Application deploys successfully to production
+- All features working in production environment
+- Performance meets acceptable standards
+- Error handling robust and user-friendly
+
+## Future Enhancements (Post-MVP)
+
+### Advanced Features
+- Product reviews and ratings
+- Wishlist functionality
+- Product search with filters
+- Email notifications (order confirmations, shipping updates)
+- Payment gateway integration (Stripe, PayPal)
+- Multi-currency support
+- Inventory alerts and notifications
+- Analytics dashboard for admins
+- Customer support chat
+- Product recommendations engine
+- Newsletter subscription
+- Social media sharing
+
+### Technical Improvements
+- Full test coverage (unit, integration, E2E)
+- Advanced caching strategies
+- CDN for static assets
+- Database read replicas for scaling
+- API rate limiting and throttling
+- Advanced security features (2FA, etc.)
+- Performance monitoring and analytics
+- Automated backup and recovery
+
+# Logical Dependency Chain
+
+## Foundation Layer (Must Build First)
+
+1. **Database Schema & Infrastructure**
+   - Database schema design (✅ Complete)
+   - Database connection and configuration
+   - Migration system setup
+   - Seed script for initial data
+   - **Why first**: Everything depends on database structure
+
+2. **Basic Product API**
+   - Products API using database (read operations)
+   - Product listing and detail endpoints
+   - **Why second**: Frontend already expects this, minimal changes needed
+
+3. **Stock Management Service**
+   - Stock reservation logic
+   - Available stock calculation
+   - **Why third**: Needed before checkout can work properly
+
+## Core Functionality Layer (Build After Foundation)
+
+4. **Checkout API with Database**
+   - Order creation in database
+   - Order item creation
+   - Stock deduction on checkout
+   - **Why fourth**: Depends on stock management, enables order fulfillment
+
+5. **Authentication System**
+   - Better Auth setup and configuration
+   - Basic login functionality
+   - **Why fifth**: Needed for admin panel and user features
+
+6. **Admin Authentication & Protection**
+   - Admin login page
+   - Route protection middleware
+   - **Why sixth**: Must secure admin routes before building admin features
+
+## Feature Layer (Build After Core)
+
+7. **Admin Product Management**
+   - Product CRUD operations
+   - **Why seventh**: Admins need to manage products, depends on authentication
+
+8. **Admin Order Management**
+   - Order viewing and status updates
+   - **Why eighth**: Depends on orders existing (from checkout), needs admin auth
+
+9. **Database-Backed Cart**
+   - Cart persistence for logged-in users
+   - **Why ninth**: Nice-to-have enhancement, doesn't block core functionality
+
+10. **User Order History**
+   - Order viewing for consumers
+   - **Why tenth**: Depends on orders existing and user authentication
+
+## Optimization Layer (Build Last)
+
+11. **Performance Optimizations**
+   - Query optimization
+   - Caching strategies
+   - **Why last**: Optimize after everything works
+
+12. **Production Deployment**
+   - Environment configuration
+   - Migration automation
+   - **Why last**: Deploy after all features complete and tested
+
+## Quick Win Strategy
+
+To get something visible and working quickly:
+1. Start with Product API migration (frontend already built, just swap data source)
+2. Then Checkout API (core purchase flow)
+3. Then Admin authentication (enables content management)
+4. Then Admin product management (enables business operations)
+
+This approach ensures:
+- Frontend remains functional throughout migration
+- Core user flows work early
+- Business operations enabled quickly
+- Foundation solid for future enhancements
+
+# Risks and Mitigations  
+
+## Technical Challenges
+
+### Risk 1: Database Migration Complexity
+**Challenge**: Migrating from static JSON to database while maintaining frontend compatibility
+**Mitigation**: 
+- Maintain API contract compatibility
+- Use feature flags to gradually migrate
+- Comprehensive testing before deployment
+- Rollback plan if issues arise
+
+### Risk 2: Stock Reservation Race Conditions
+**Challenge**: Multiple users adding same product to cart simultaneously could cause overselling
+**Mitigation**:
+- Use database transactions for stock operations
+- Implement optimistic locking
+- Reserve stock immediately on cart add
+- Validate stock availability at checkout time
+- Cleanup expired reservations regularly
+
+### Risk 3: Better Auth Integration Complexity
+**Challenge**: Integrating Better Auth with existing structure and custom roles
+**Mitigation**:
+- Follow Better Auth documentation carefully
+- Test authentication flows thoroughly
+- Implement role checks at middleware level
+- Have fallback authentication method if needed
+
+### Risk 4: Image Storage Migration
+**Challenge**: Moving from local assets to cloud storage (Vercel Blob/R2)
+**Mitigation**:
+- Use migration script to upload existing images
+- Maintain backward compatibility during transition
+- Test image loading performance
+- Have backup storage option
+
+### Risk 5: Performance Degradation
+**Challenge**: Database queries might be slower than static JSON
+**Mitigation**:
+- Optimize database queries (avoid N+1 problems)
+- Implement appropriate indexes
+- Use database connection pooling
+- Add caching layer where appropriate
+- Monitor query performance
+
+## MVP Scope Definition
+
+### Risk: Scope Creep
+**Challenge**: Trying to build too much at once, delaying MVP
+**Mitigation**:
+- Strictly follow phased roadmap
+- Defer non-essential features to post-MVP
+- Focus on core user flows first
+- Regular scope reviews
+
+### Risk: Over-Engineering
+**Challenge**: Building complex solutions for simple problems
+**Mitigation**:
+- Start with simplest solution that works
+- Refactor when needed, not preemptively
+- Use proven libraries and patterns
+- Code reviews to catch over-engineering
+
+## Resource Constraints
+
+### Risk: Limited Development Time
+**Challenge**: Completing all phases within available time
+**Mitigation**:
+- Prioritize MVP features (Phases 1-3)
+- Defer enhancements to post-MVP
+- Focus on high-impact features first
+- Regular progress tracking
+
+### Risk: Database Costs in Production
+**Challenge**: Managed database services can be expensive at scale
+**Mitigation**:
+- Start with free tier (Neon free tier)
+- Monitor usage and optimize queries
+- Plan for scaling costs
+- Consider self-hosted option if needed
+
+### Risk: Third-Party Service Dependencies
+**Challenge**: Vercel, Neon, Better Auth could have outages or changes
+**Mitigation**:
+- Have backup options identified
+- Abstract service integrations
+- Monitor service status
+- Document migration paths
+
+## Data Migration Risks
+
+### Risk: Data Loss During Migration
+**Challenge**: Losing existing product data during migration
+**Mitigation**:
+- Backup all data before migration
+- Test migration on staging environment
+- Validate data integrity after migration
+- Have rollback procedure ready
+
+### Risk: Incomplete Data Migration
+**Challenge**: Some product data not migrating correctly
+**Mitigation**:
+- Comprehensive seed script testing
+- Data validation checks
+- Manual verification of migrated data
+- Fix script for any missing data
+
+## Security Risks
+
+### Risk: Unauthorized Admin Access
+**Challenge**: Admin panel accessible without proper authentication
+**Mitigation**:
+- Strict role-based access control
+- Test all admin routes require authentication
+- Regular security audits
+- Strong password requirements
+
+### Risk: SQL Injection or Data Breaches
+**Challenge**: Vulnerable database queries or exposed sensitive data
+**Mitigation**:
+- Use ORM (Drizzle) to prevent SQL injection
+- Input validation and sanitization
+- Environment variable protection
+- Regular security updates
+- Security best practices in code reviews
+
+# Appendix  
+
+## Research Findings
+
+### Technology Choices
+
+**Next.js 16 with App Router**: 
+- Modern React framework with excellent performance
+- Built-in API routes for backend functionality
+- Server-side rendering and static generation
+- Strong TypeScript support
+
+**Drizzle ORM**:
+- Type-safe database queries
+- Lightweight and performant
+- Excellent TypeScript support
+- Easy migrations
+
+**Better Auth**:
+- Modern authentication solution
+- Built for Next.js
+- Supports multiple providers
+- Type-safe with TypeScript
+
+**Elysia.js**:
+- Fast Bun runtime API framework
+- OpenAPI documentation generation
+- Type-safe with TypeScript
+- Excellent performance
+
+**PostgreSQL**:
+- Robust relational database
+- ACID compliance for transactions
+- Excellent for e-commerce data
+- Strong ecosystem and tooling
+
+### Best Practices Identified
+
+1. **Stock Management**: Use reservation system with expiration to prevent overselling
+2. **Order Data**: Denormalize product data in orders for historical accuracy
+3. **Image Management**: Store multiple sizes and types for performance optimization
+4. **Guest Checkout**: Support both authenticated and guest users for maximum conversion
+5. **Role-Based Access**: Implement at middleware level for security
+
+## Technical Specifications
+
+### Database Schema Details
+
+**Product Images Structure**:
+- Types: `product` (main), `category` (category page), `gallery` (detail page), `related` (recommendations)
+- Sizes: `mobile`, `tablet`, `desktop`
+- Order field for sorting
+
+**Stock Reservations**:
+- 30-minute expiration
+- Supports both user_id (logged-in) and session_id (guest)
+- Automatic cleanup needed
+
+**Order Calculations**:
+- Subtotal: Sum of (quantity × unit_price) for all items
+- Shipping: Fixed $50
+- VAT: 20% of subtotal (not including shipping)
+- Grand Total: Subtotal + Shipping + VAT
+
+### API Response Formats
+
+**Product Response**:
+```typescript
+{
+  products: Array<{
+    id: string;
+    slug: string;
+    name: string;
+    category: string;
+    price: number;
+    stock: number;
+    isNew: boolean;
+    description: string;
+    features: string;
+    images: Array<{type, size, url, order}>;
+    includes: Array<{quantity, item}>;
+    related: Array<{slug, name}>;
+  }>
+}
+```
+
+**Order Response**:
+```typescript
+{
+  success: boolean;
+  orderId: string;
+  orderNumber: string;
+  message: string;
+}
+```
+
+### Environment Variables Required
+
+**Development**:
+- `DATABASE_URL` - PostgreSQL connection string
+- `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` - Docker setup
+- `BLOB_READ_WRITE_TOKEN` - Vercel Blob token (optional)
+- `BETTER_AUTH_SECRET` - Auth secret key
+- `BETTER_AUTH_URL` - Auth callback URL
+
+**Production**:
+- All development variables plus:
+- `NEXT_PUBLIC_SITE_URL` - Public site URL
+- Production database URL (Neon or similar)
+
+### Deployment Checklist
+
+1. ✅ Database schema created
+2. ⏳ Database migrations automated
+3. ⏳ Environment variables configured
+4. ⏳ Image storage configured
+5. ⏳ Better Auth configured
+6. ⏳ Admin user created
+7. ⏳ Database seeded with products
+8. ⏳ Health checks passing
+9. ⏳ All APIs tested
+10. ⏳ Frontend tested with database
+
+## Current Project Status
+
+### Completed ✅
+- Database schema design and implementation
+- Frontend UI components and pages
+- Basic API structure with Elysia
+- Docker setup for local development
+- Database seed script structure
+
+### In Progress ⏳
+- API migration from JSON to database
+- Better Auth integration
+- Admin panel database integration
+- Health check endpoint
+
+### Pending 📋
+- Stock reservation system
+- Order management features
+- User authentication pages
+- Production deployment configuration
+- Performance optimizations
+- unit test
+
+## References
+
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Drizzle ORM Documentation](https://orm.drizzle.team/)
+- [Better Auth Documentation](https://www.better-auth.com/docs)
+- [Elysia.js Documentation](https://elysiajs.com/)
+- [PostgreSQL Documentation](https://www.postgresql.org/docs/)
+- [Vercel Blob Storage](https://vercel.com/docs/storage/vercel-blob)
+- [Cloudflare R2](https://developers.cloudflare.com/r2/)
+- [Vitest Documentation](https://vitest.dev)
+</PRD>

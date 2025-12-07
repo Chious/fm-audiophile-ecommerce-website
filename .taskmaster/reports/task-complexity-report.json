@@ -1,0 +1,157 @@
+{
+	"meta": {
+		"generatedAt": "2025-12-07T01:04:44.665Z",
+		"tasksAnalyzed": 18,
+		"totalTasks": 18,
+		"analysisCount": 18,
+		"thresholdScore": 5,
+		"projectName": "Taskmaster",
+		"usedResearch": true
+	},
+	"complexityAnalysis": [
+		{
+			"taskId": 1,
+			"taskTitle": "Setup Project Repository and Local Environment",
+			"complexityScore": 5,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Break down Task 1 into detailed implementation subtasks. Cover: (1) initializing a new Next.js 16 repo with App Router, TypeScript, Tailwind, ESLint and recommended defaults; (2) choosing and configuring Bun vs Node.js (min Node 20) including scripts in package.json; (3) adding basic repo hygiene (git init, .gitignore, editorconfig, lint/format config, base folder structure); (4) writing docker-compose.yml for PostgreSQL 16 with secure defaults, volumes, healthchecks, and local connection string; (5) creating and documenting .env/.env.local/.env.example including DATABASE_URL, BETTER_AUTH_SECRET, BETTER_AUTH_URL, BLOB_READ_WRITE_TOKEN, and local vs production differences; (6) initializing Drizzle ORM and drizzle-kit (config file, schema folder layout, scripts to generate/apply migrations) and verifying local dev with npm run dev and DB connectivity. For each subtask, specify concrete acceptance criteria and owner-friendly checklist items.",
+			"reasoning": "Medium complexity: standard Next.js + DB setup, but multiple tools (Next 16, Bun/Node, Docker, env, Drizzle) and cross-cutting config justify several focused subtasks for reliability and onboarding clarity."
+		},
+		{
+			"taskId": 2,
+			"taskTitle": "Implement Database Schema and Migrations",
+			"complexityScore": 8,
+			"recommendedSubtasks": 7,
+			"expansionPrompt": "Expand Task 2 into concrete subtasks focused on schema design and migration safety. Include: (1) design pass for overall ER model and naming conventions (users/sessions/accounts/verifications/categories/products/product_images/product_includes/related_products/orders/order_items/stock_reservations) plus future-proofing; (2) implement auth-related tables (users, sessions, accounts, verifications) aligned with Better Auth expectations; (3) implement catalog-related tables (categories, products, product_images, product_includes, related_products) with proper types, default values, and referential integrity; (4) implement order/checkout-related tables (orders, order_items, stock_reservations) including enum/status fields, monetary precision, and foreign keys; (5) define indexes and constraints (unique, composite indexes for slugs, category lookups, userId, expiresAt, etc.) with rationale; (6) configure drizzle-kit (drizzle.config, migrations folder, scripts) and generate initial migration set, including repeatable patterns for future changes; (7) verify migrations end-to-end against a clean PostgreSQL instance, document rollback strategy, and add a checklist for schema changes in future sprints. For each subtask, specify acceptance criteria and any diagrams or docs to be produced.",
+			"reasoning": "High complexity: many related tables and constraints, performance-critical indexes, alignment with auth and business flows, and the need for robust migrations and rollback strategy."
+		},
+		{
+			"taskId": 3,
+			"taskTitle": "Create Database Seed Script",
+			"complexityScore": 6,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Decompose Task 3 into clear subtasks. Cover: (1) define seed data model and source format (e.g., static TS/JSON fixtures) for categories, products, images, includes, related products, and users, ensuring alignment with frontend expectations; (2) implement a reusable seed runner script (Node/Bun) wired to Drizzle, with idempotency safeguards (upsert or truncate strategy) and environment awareness (local-only by default); (3) implement seeding logic for catalog (categories, products, product_images, product_includes, related_products) including slug generation/validation and referential integrity; (4) implement seeding logic for users (admin + consumer) with secure password handling consistent with Better Auth; (5) add verification steps: simple validation queries, optional snapshot tests, and documentation on how/when to run seeds (npm scripts, README). For each subtask, define success criteria and failure modes to watch for.",
+			"reasoning": "Moderate complexity: non-trivial relationships and uniqueness constraints, plus need for idempotent, safe, and documented seeding useful across environments."
+		},
+		{
+			"taskId": 4,
+			"taskTitle": "Set Up Elysia.js API with OpenAPI",
+			"complexityScore": 6,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Expand Task 4 into implementation-level subtasks. Include: (1) decide architecture: Elysia as standalone service vs integrated within Next.js, folder structure (src/api), dev scripts, and port/env conventions; (2) bootstrap Elysia server with core middleware (JSON parsing, error handling, CORS, logging) and configuration loading; (3) integrate OpenAPI generation (plugin or manual spec) including base info, servers, schemas/components, and route auto-registration where possible; (4) implement health endpoint GET /api/health that checks DB connection (via Drizzle) and returns structured status; (5) add stub routes GET /api/products and POST /api/checkout with typed request/response models ready to be wired to services later; (6) add local dev/testing setup: scripts, basic integration tests (or Postman/Insomnia collection), and documentation on how to run and access docs. For each subtask, list the expected files and minimal acceptance tests.",
+			"reasoning": "Moderate complexity: new backend service layer, OpenAPI integration, foundational routing and health checks that impact all downstream API tasks."
+		},
+		{
+			"taskId": 5,
+			"taskTitle": "Migrate Product Service to Database",
+			"complexityScore": 7,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Break down Task 5 into concrete subtasks. Cover: (1) inventory existing product JSON schema and all frontend usage patterns to define the canonical product DTO shape; (2) design the ProductService interface and mapping layer from Drizzle entities (products, categories, product_images, product_includes, related_products) to the frontend DTO; (3) implement getAllProducts(pagination) with efficient queries, joins, and ordering, avoiding N+1 and honoring pagination; (4) implement getProductBySlug and getProductsByCategory with appropriate error handling (404), caching hooks if needed, and type-safe parameters; (5) write unit/integration tests for ProductService, validating data shape equivalence with legacy JSON and edge cases (missing relations, inactive products); (6) replace all callers in the app/API with ProductService, perform regression testing, and add migration notes for removing old JSON data. For each subtask, specify acceptance criteria and any performance thresholds.",
+			"reasoning": "High-moderate complexity: involves data modeling, query optimization, DTO mapping, and careful regression against existing frontend expectations."
+		},
+		{
+			"taskId": 6,
+			"taskTitle": "Implement Public Products API Endpoints",
+			"complexityScore": 7,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Decompose Task 6 into detailed subtasks. Include: (1) define API contracts for GET /api/products, GET /api/products/:slug, and GET /api/products/category/:category (query params, response shapes, error formats) and document them in OpenAPI; (2) implement GET /api/products with pagination, optional category filtering, and sorting semantics using ProductService, including validation of inputs and safe defaults; (3) implement GET /api/products/:slug and /category/:category endpoints with proper error handling (404 vs 400) and URL-safe category/slug parsing; (4) integrate input validation (e.g., Zod or Elysia schema) for params and query, centralizing validation error responses; (5) configure cross-cutting concerns: CORS, basic rate limiting, and consistent response wrapper format if defined in PRD; (6) add endpoint tests (unit/integration) and manual verification steps with curl/Postman plus performance checks on typical product list sizes. For each subtask, define concrete acceptance criteria.",
+			"reasoning": "High-moderate complexity: multiple endpoints, validation, integration with ProductService, and public API concerns like rate limiting and CORS."
+		},
+		{
+			"taskId": 7,
+			"taskTitle": "Implement Stock Reservation Service",
+			"complexityScore": 8,
+			"recommendedSubtasks": 7,
+			"expansionPrompt": "Expand Task 7 into fine-grained subtasks. Cover: (1) finalize the stock_reservations table design (indexes, uniqueness constraints, handling of userId vs sessionId, and link to products) and ensure migrations exist; (2) design the StockReservationService interface and invariants (reservation lifecycle, expiry semantics, overbooking rules); (3) implement createReservation with DB transactions, validation of available stock, and idempotent behavior when the same user/session adds the same product; (4) implement getAvailableStock and validateStock using a clear formula: physical stock minus active reservations, with indexing to avoid slow queries; (5) implement cleanupExpiredReservations as a scheduled job or callable function, including concurrency-safe deletion and metrics/logging; (6) write comprehensive unit and integration tests, including race condition scenarios (concurrent adds) and boundary cases around expiry times; (7) document how this service is used by cart/checkout and how to tune expiry duration in different environments. For each subtask, specify expected test cases and transaction behavior.",
+			"reasoning": "High complexity: stateful, concurrency-sensitive logic with transactions, expiry handling, and strong correctness requirements affecting checkout integrity."
+		},
+		{
+			"taskId": 8,
+			"taskTitle": "Implement Checkout API with Order Creation",
+			"complexityScore": 8,
+			"recommendedSubtasks": 7,
+			"expansionPrompt": "Break Task 8 into detailed subtasks. Include: (1) define the canonical cart and order DTOs (inputs and outputs) including tax, shipping, and currency handling, and document them in the API spec; (2) design CheckoutService interface and orchestrated flow: validate cart, compute totals (subtotal, fixed shipping, VAT 20% on subtotal, grand total), handle guest vs authenticated users; (3) implement robust cart validation (product existence, prices, stock via StockReservationService or live stock checks, quantities) and error reporting; (4) implement transactional order creation: insert orders record, order_items with price snapshots, and stock deduction from products ensuring atomicity and idempotency; (5) implement unique order number generation strategy (e.g., prefix + timestamp + random/sequence) with collision resistance; (6) implement success/failure result handling and shape of the order confirmation response (orderId, orderNumber, message) and integrate with logging/metrics; (7) write tests for valid/invalid carts, rollback on failure, stock deductions, and rounding/precision of monetary calculations. For each subtask, define explicit acceptance criteria and edge cases.",
+			"reasoning": "High complexity: multi-step transactional workflow involving validation, monetary logic, stock correctness, and public-facing API contract."
+		},
+		{
+			"taskId": 9,
+			"taskTitle": "Implement Checkout API Endpoints",
+			"complexityScore": 7,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Expand Task 9 into implementation-level subtasks. Cover: (1) define and document the POST /api/checkout request/response schemas in OpenAPI and Zod, including cart items, customer info, payment method, and standardized error shapes; (2) implement endpoint handler wiring to CheckoutService, handling authentication context (user session) vs guest (session ID), and ensuring idempotency for repeat submissions; (3) integrate Zod validation for body, headers, and any metadata, returning consistent 4xx errors on invalid payloads; (4) implement response mapping and HTTP status conventions for success, validation failure, business rule failures (insufficient stock), and unexpected errors; (5) add integration tests and manual testing scenarios (authenticated/guest users, invalid carts, duplicated requests), plus basic rate limiting or abuse protection if needed. For each subtask, specify acceptance criteria and logging requirements.",
+			"reasoning": "High-moderate complexity: main checkout entrypoint tying auth, validation, and service orchestration, but leveraging existing CheckoutService logic."
+		},
+		{
+			"taskId": 10,
+			"taskTitle": "Integrate Better Auth for Authentication",
+			"complexityScore": 8,
+			"recommendedSubtasks": 7,
+			"expansionPrompt": "Decompose Task 10 into concrete subtasks. Include: (1) review Better Auth documentation and align with existing users/sessions/accounts/verifications schema from Drizzle, adjusting schema if necessary; (2) integrate Better Auth server-side configuration (providers, adapters, DB connection via Drizzle) and environment variables (secrets, URLs); (3) implement email/password signup/login flows including password hashing, email verification if applicable, and secure cookie/session configuration; (4) define and store user roles (admin, consumer) with a clear strategy (column, join table, or claims) and default role assignment on signup; (5) implement session management (creation, refresh/expiration, revocation) and ensure compatibility with both Next.js and Elysia where needed; (6) implement GET /api/auth/session (or equivalent) to return current user and role in a frontend-friendly format; (7) add integration tests for signup/signin/signout, role propagation, and session expiry, plus security checks (CSRF, cookie flags, brute-force considerations). For each subtask, define acceptance and security criteria.",
+			"reasoning": "High complexity: security-sensitive auth integration, cross-service concerns, and role modeling that underpins admin and user flows."
+		},
+		{
+			"taskId": 11,
+			"taskTitle": "Implement Admin Authentication and Route Protection",
+			"complexityScore": 7,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Expand Task 11 into detailed subtasks. Cover: (1) define UX and routing for admin login page (URL structure, layout separation from public site, success/failure flows); (2) implement admin login page in Next.js using React Hook Form and Zod (form state, validation, error messages, integration with Better Auth login endpoint); (3) implement shared auth/role utilities on the frontend (hooks or helpers) to access session and role and handle loading states; (4) implement backend route protection: Elysia hooks and/or Next.js middleware that check authentication and admin role for /api/admin/* and any admin UI routes; (5) configure redirects and error responses for unauthenticated (401) vs unauthorized (403) access, including a consistent JSON error format for APIs; (6) add tests and manual verification: access patterns for admin vs non-admin users, login/logout behavior, and regression tests to ensure no public routes are unintentionally restricted. For each subtask, specify acceptance criteria and security considerations.",
+			"reasoning": "High-moderate complexity: combines frontend auth UX, middleware, and security rules across both API and UI layers."
+		},
+		{
+			"taskId": 12,
+			"taskTitle": "Implement Admin Product Management API",
+			"complexityScore": 8,
+			"recommendedSubtasks": 7,
+			"expansionPrompt": "Break Task 12 into fine-grained subtasks. Include: (1) define CRUD API contracts and validation schemas for /api/admin/products (list, create, update, delete), including pagination, filtering, and shape of product payloads; (2) integrate admin authorization middleware into all admin product routes and define error response patterns; (3) implement GET /api/admin/products using ProductService with admin-specific capabilities (seeing drafts, unpublished products, etc., if applicable); (4) implement POST/PUT routes for creating/updating products, including handling nested data (images, includes, related products) and maintaining slug uniqueness; (5) implement DELETE /api/admin/products/:id with safe deletion strategy (soft delete vs hard delete) and referential integrity handling; (6) design and implement image upload flow with Vercel Blob/Cloudflare R2: upload endpoint, storage keys, metadata persistence in product_images, and cleanup behavior on product changes/deletion; (7) add tests for all routes (including auth, validation, and file handling) and admin UI integration considerations. For each subtask, specify acceptance criteria and security/performance notes.",
+			"reasoning": "High complexity: full CRUD with nested relations, media integration, and admin-only access, all of which impact core catalogue integrity."
+		},
+		{
+			"taskId": 13,
+			"taskTitle": "Implement Admin Order Management API",
+			"complexityScore": 7,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Expand Task 13 into concrete subtasks. Cover: (1) define API contracts for GET /api/admin/orders, GET /api/admin/orders/:id, and PUT /api/admin/orders/:id including filters (status, date ranges, search) and response shapes; (2) integrate admin middleware on all routes and decide on pagination and sorting defaults for listing; (3) implement order listing endpoint with flexible filtering, search by order number/email, and efficient querying across orders and order_items; (4) implement order detail endpoint that returns customer info, items, totals, and status/history as needed; (5) implement order status update endpoint with allowed status transitions, audit logging (if required), and any side-effects (e.g., stock or notifications, even if stubbed); (6) add tests covering filters, status transitions, authorization behavior, and correctness of returned aggregates. For each subtask, specify acceptance criteria and performance considerations for large order volumes.",
+			"reasoning": "High-moderate complexity: admin-only querying and updating across orders with flexible filters and status lifecycle constraints."
+		},
+		{
+			"taskId": 14,
+			"taskTitle": "Implement Admin Media Management API",
+			"complexityScore": 7,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Decompose Task 14 into detailed subtasks. Include: (1) design media data model and relationship with products/product_images (what is stored in DB vs in blob storage) and ensure migrations are complete; (2) define API contracts for GET /api/admin/medias, POST /api/admin/medias, and DELETE /api/admin/medias/:id including metadata fields (type, size, order, alt text) and pagination; (3) integrate admin auth middleware and any access control rules (e.g., restrict deletions if media is in use by products); (4) implement upload endpoint using Vercel Blob or Cloudflare R2 SDK: request handling, streaming, error handling, and metadata persistence; (5) implement listing and deletion endpoints, including safe delete semantics and storage/DB consistency (what happens if storage delete fails); (6) add tests for uploads (various sizes/types), list filters, deletion scenarios, and manual test checklist for cloud storage configuration. For each subtask, define acceptance and observability/logging requirements.",
+			"reasoning": "High-moderate complexity: external storage integration, metadata management, and admin-only operations with consistency requirements."
+		},
+		{
+			"taskId": 15,
+			"taskTitle": "Implement Database-Backed Cart for Authenticated Users",
+			"complexityScore": 7,
+			"recommendedSubtasks": 7,
+			"expansionPrompt": "Expand Task 15 into fine-grained subtasks. Cover: (1) design cart_items table schema (keys, uniqueness constraints, relation to users and products, handling of guest/session carts if stored) and ensure migrations are in place; (2) design CartService interface and cart domain rules (max quantities, merge behavior, how prices are handled vs product table); (3) implement getCart(userId) with efficient loading of product details needed by the frontend; (4) implement addToCart, updateCartItem, and removeFromCart with input validation, stock validation hooks (possibly via StockReservationService), and idempotent behavior; (5) design and implement login sync strategy: how to merge localStorage cart with DB cart (conflict resolution rules) and where to trigger this (frontend vs backend); (6) update frontend flows to call CartService-backed APIs for authenticated users while preserving localStorage behavior for guests; (7) write unit/integration tests and manual checklists for persistence across devices/sessions, sync on login, and failure scenarios. For each subtask, include explicit acceptance criteria.",
+			"reasoning": "High-moderate complexity: new persistent cart model, merge logic on login, and interactions with stock reservation and frontend state."
+		},
+		{
+			"taskId": 16,
+			"taskTitle": "Implement User Order History API",
+			"complexityScore": 6,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Break Task 16 into concrete subtasks. Include: (1) define API contracts for GET /api/orders and GET /api/orders/:id for authenticated users, including pagination, sorting, and which fields are exposed; (2) integrate authentication middleware and enforce scoping so users can only access their own orders (by userId), with consistent error responses for forbidden access; (3) implement list endpoint with efficient querying and minimal joins, returning summary info per order (dates, totals, status); (4) implement detail endpoint returning items, prices, and any address/payment metadata which is safe to show; (5) add tests verifying access control, correctness of returned data, and behavior with no orders or large histories. For each subtask, specify acceptance criteria and basic performance expectations.",
+			"reasoning": "Moderate complexity: standard authenticated list/detail APIs with strong access control and relatively straightforward queries."
+		},
+		{
+			"taskId": 17,
+			"taskTitle": "Configure Vercel Deployment and Production Settings",
+			"complexityScore": 7,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Expand Task 17 into detailed subtasks. Cover: (1) configure Vercel project basics (framework preset for Next.js 16, build commands, environment separation for preview/production); (2) set required environment variables (DATABASE_URL for Neon, BETTER_AUTH_SECRET, BETTER_AUTH_URL, NEXT_PUBLIC_SITE_URL, BLOB_READ_WRITE_TOKEN, any Redis/monitoring keys) and document them; (3) set up automated Drizzle migrations on deploy (build hooks, migration script, or Vercel/Neon integration) including rollback strategy; (4) configure production database connection pool settings and SSL, and validate from deployed app; (5) configure Vercel Blob or Cloudflare R2 for images in production including CORS, public URLs, and region choices; (6) run a full test deployment: smoke test critical routes and APIs, confirm migrations ran, assets load, and environment variables are effective, then document deployment procedures. For each subtask, provide clear acceptance criteria and ops notes.",
+			"reasoning": "High-moderate complexity: multi-service production configuration (Vercel, Neon, blob storage) and automated migrations with potential for deployment-time failures."
+		},
+		{
+			"taskId": 18,
+			"taskTitle": "Implement Performance Optimizations and Health Checks",
+			"complexityScore": 8,
+			"recommendedSubtasks": 8,
+			"expansionPrompt": "Decompose Task 18 into focused subtasks. Include: (1) perform baseline performance and query profiling (identify N+1 patterns, slow endpoints, heavy DB queries) and create a short report with priorities; (2) optimize critical Drizzle queries (joins, selects, limits, indexes) and add/adjust DB indexes where justified, with migration scripts and before/after metrics; (3) design and implement caching for product listings and categories using Redis or similar (key strategy, TTLs, cache invalidation rules on product/category changes); (4) integrate caching into relevant endpoints/services with fallbacks and observability (cache hit/miss metrics, logs); (5) implement Next.js frontend optimizations: use Next/Image for lazy loading and responsive images, review bundle size, and apply basic code-splitting where beneficial; (6) design and implement a comprehensive health check endpoint that verifies DB connectivity, storage (blob/R2), cache layer (Redis), and auth system, returning structured status; (7) set up error logging and monitoring (e.g., Sentry/Logtail) for both frontend and backend, including runtime error capture and performance traces if available; (8) run load tests against key endpoints, collect metrics, and adjust thresholds/alerts as needed. For each subtask, define measurable acceptance criteria and target SLOs where possible.",
+			"reasoning": "High complexity: cross-cutting performance work (DB, caching, frontend), multi-service health checks, and observability/monitoring setup with measurable impact on reliability."
+		}
+	]
+}
