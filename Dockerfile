@@ -34,10 +34,11 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=8080
 
 # Create a non-root user
-RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 nextjs
+RUN addgroup --system --gid 999 nodejs && \
+    adduser --system --uid 999 nextjs
 
 # Copy necessary files from standalone output
 # Next.js standalone output includes server.js in .next/standalone
@@ -50,10 +51,7 @@ RUN chown -R nextjs:nodejs /app
 
 USER nextjs
 
-EXPOSE 3000
-
-ENV PORT=3000
-ENV HOSTNAME="0.0.0.0"
+EXPOSE 8080
 
 # Start the application
 # When .next/standalone is copied to /app, server.js is at /app/server.js

@@ -1,7 +1,7 @@
 import { edenFetch, treaty } from "@elysiajs/eden";
 import type { App } from "@/api/[[...slugs]]/route";
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:8080";
 
 export const api = treaty<App>(baseUrl).api;
 

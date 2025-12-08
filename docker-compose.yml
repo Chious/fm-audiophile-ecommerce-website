@@ -25,11 +25,11 @@ services:
     container_name: audiophile-app
     restart: unless-stopped
     ports:
-      - "${APP_PORT:-3000}:3000"
+      - "${APP_PORT:-8080}:8080"
     environment:
       - DATABASE_URL=postgresql://audiophile:audiophile123@host.docker.internal:5432/audiophile_db
       - NODE_ENV=production
-      - NEXT_PUBLIC_SITE_URL=http://localhost:3000
+      - NEXT_PUBLIC_SITE_URL=http://localhost:8080
     depends_on:
       postgres:
         condition: service_healthy
