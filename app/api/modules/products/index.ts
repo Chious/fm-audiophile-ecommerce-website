@@ -6,8 +6,9 @@ export const products = new Elysia({ prefix: "/products" })
   // List all products
   .get(
     "/",
-    async () => {
-      return await ProductService.getAllProducts();
+    async ({ query }) => {
+      const { page = 1, limit = 20, category } = query;
+      return await ProductService.getAllProducts({ page, limit, category });
     },
     {
       detail: {
@@ -16,6 +17,29 @@ export const products = new Elysia({ prefix: "/products" })
         description:
           "Return the full product catalogue including basic pricing and metadata. 適合用於首頁或類別頁一次載入所有商品資料。",
       },
+      query: t.Object({
+        page: t.Optional(
+          t.Number({
+            description: "Page number (1-indexed).",
+            minimum: 1,
+            default: 1,
+          })
+        ),
+        limit: t.Optional(
+          t.Number({
+            description: "Page size (max 100).",
+            minimum: 1,
+            maximum: 100,
+            default: 20,
+          })
+        ),
+        category: t.Optional(
+          t.String({
+            description: "Optional category slug filter.",
+            examples: ["headphones", "speakers", "earphones"],
+          })
+        ),
+      }),
       response: {
         200: productsResponse,
       },
@@ -24,8 +48,13 @@ export const products = new Elysia({ prefix: "/products" })
   // List products by category
   .get(
     "/category/:category",
-    async ({ params }) => {
-      return await ProductService.getProductsByCategory(params.category);
+    async ({ params, query }) => {
+      const { page = 1, limit = 20 } = query;
+      return await ProductService.getProductsByCategory(
+        params.category,
+        page,
+        limit
+      );
     },
     {
       detail: {
@@ -40,6 +69,23 @@ export const products = new Elysia({ prefix: "/products" })
             "Product category slug (e.g. `headphones`, `speakers`, `earphones`).",
           examples: ["headphones"],
         }),
+      }),
+      query: t.Object({
+        page: t.Optional(
+          t.Number({
+            description: "Page number (1-indexed).",
+            minimum: 1,
+            default: 1,
+          })
+        ),
+        limit: t.Optional(
+          t.Number({
+            description: "Page size (max 100).",
+            minimum: 1,
+            maximum: 100,
+            default: 20,
+          })
+        ),
       }),
       response: {
         200: productsResponse,

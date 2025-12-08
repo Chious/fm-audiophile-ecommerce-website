@@ -9,6 +9,15 @@ import {
 } from "@/database/schema";
 import type { product, productsResponse } from "./model";
 
+type ListOptions = {
+  page?: number;
+  limit?: number;
+  category?: string;
+};
+
+const DEFAULT_LIMIT = 20;
+const MAX_LIMIT = 100;
+
 // Helper function to transform database product to frontend model
 type ProductWithRelations = typeof products.$inferSelect & {
   category: typeof categories.$inferSelect;
@@ -152,7 +161,16 @@ function transformProduct(dbProduct: ProductWithRelations): product {
 }
 
 export abstract class ProductService {
-  static async getAllProducts(): Promise<productsResponse> {
+  static async getAllProducts(
+    options: ListOptions = {}
+  ): Promise<productsResponse> {
+    const page = Math.max(1, Math.floor(options.page ?? 1));
+    const limit = Math.max(
+      1,
+      Math.min(MAX_LIMIT, Math.floor(options.limit ?? DEFAULT_LIMIT))
+    );
+    const categoryFilter = options.category?.toLowerCase();
+
     // Fetch all products
     const allProducts = await db.select().from(products);
 
@@ -271,8 +289,22 @@ export abstract class ProductService {
       })
     );
 
+    const filteredProducts = transformedProducts
+      .filter((p): p is product => p !== null)
+      .filter((p) => (categoryFilter ? p.category === categoryFilter : true));
+
+    const total = filteredProducts.length;
+    const offset = (page - 1) * limit;
+    const paginatedProducts = filteredProducts.slice(offset, offset + limit);
+
     return {
-      products: transformedProducts.filter((p): p is product => p !== null),
+      products: paginatedProducts,
+      meta: {
+        page,
+        limit,
+        total,
+        category: categoryFilter ?? null,
+      },
     };
   }
 
@@ -369,123 +401,10 @@ export abstract class ProductService {
   }
 
   static async getProductsByCategory(
-    category: string
+    category: string,
+    page?: number,
+    limit?: number
   ): Promise<productsResponse> {
-    // Find category by slug
-    const [categoryRecord] = await db
-      .select()
-      .from(categories)
-      .where(eq(categories.slug, category))
-      .limit(1);
-
-    if (!categoryRecord) {
-      return { products: [] };
-    }
-
-    // Fetch products in category
-    const categoryProducts = await db
-      .select()
-      .from(products)
-      .where(eq(products.categoryId, categoryRecord.id));
-
-    // Use getAllProducts logic but filter by category
-    // For simplicity, reuse the same transformation logic
-    const allImages = await db.select().from(productImages);
-    const allIncludes = await db.select().from(productIncludes);
-    const allRelated = await db.select().from(relatedProducts);
-
-    const imagesMap = new Map<string, (typeof productImages.$inferSelect)[]>();
-    const includesMap = new Map<
-      string,
-      (typeof productIncludes.$inferSelect)[]
-    >();
-    const relatedMap = new Map<
-      string,
-      (typeof relatedProducts.$inferSelect)[]
-    >();
-
-    allImages.forEach((img) => {
-      if (!imagesMap.has(img.productId)) imagesMap.set(img.productId, []);
-      imagesMap.get(img.productId)!.push(img);
-    });
-
-    allIncludes.forEach((inc) => {
-      if (!includesMap.has(inc.productId)) includesMap.set(inc.productId, []);
-      includesMap.get(inc.productId)!.push(inc);
-    });
-
-    allRelated.forEach((rel) => {
-      if (!relatedMap.has(rel.productId)) relatedMap.set(rel.productId, []);
-      relatedMap.get(rel.productId)!.push(rel);
-    });
-
-    const transformedProducts = await Promise.all(
-      categoryProducts.map(async (product) => {
-        const images = imagesMap.get(product.id) || [];
-        const includes = (includesMap.get(product.id) || []).sort(
-          (a, b) => a.order - b.order
-        );
-
-        const relatedProductIds = (relatedMap.get(product.id) || [])
-          .sort((a, b) => a.order - b.order)
-          .map((r) => r.relatedProductId);
-
-        const relatedProductsList =
-          relatedProductIds.length > 0
-            ? await db
-                .select()
-                .from(products)
-                .where(inArray(products.id, relatedProductIds))
-            : [];
-
-        const relatedProductImagesMap = new Map<
-          string,
-          (typeof productImages.$inferSelect)[]
-        >();
-        if (relatedProductsList.length > 0) {
-          const relatedImages = await db
-            .select()
-            .from(productImages)
-            .where(
-              inArray(
-                productImages.productId,
-                relatedProductsList.map((p) => p.id)
-              )
-            );
-          relatedImages.forEach((img) => {
-            if (!relatedProductImagesMap.has(img.productId)) {
-              relatedProductImagesMap.set(img.productId, []);
-            }
-            relatedProductImagesMap.get(img.productId)!.push(img);
-          });
-        }
-
-        const relatedProductsData = (relatedMap.get(product.id) || [])
-          .sort((a, b) => a.order - b.order)
-          .map((rel) => {
-            const relatedProd = relatedProductsList.find(
-              (p) => p.id === rel.relatedProductId
-            );
-            return {
-              relatedProduct: {
-                ...relatedProd!,
-                images: relatedProductImagesMap.get(rel.relatedProductId) || [],
-              },
-              order: rel.order,
-            };
-          })
-          .filter((r) => r.relatedProduct);
-
-        return transformProduct({
-          ...product,
-          category: categoryRecord,
-          images,
-          includes,
-          relatedProductsData,
-        });
-      })
-    );
-
-    return { products: transformedProducts };
+    return this.getAllProducts({ category, page, limit });
   }
 }

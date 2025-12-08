@@ -5,8 +5,45 @@ import { products } from "@/api/modules/products";
 import { checkout } from "@/api/modules/checkout";
 import { admin } from "@/api/modules/admin";
 import { health } from "@/api/modules/health";
+import { cors } from "@elysiajs/cors";
+import { ip } from "elysia-ip";
+import { DefaultContext, type Generator, rateLimit } from "elysia-rate-limit";
+import type { SocketAddress } from "bun";
 
-const app = new Elysia({ prefix: "/api" })
+const ipGenerator: Generator<{ ip: SocketAddress }> = (_r, _s, { ip }) =>
+  ip?.address ?? "unknown";
+
+export const app = new Elysia({ prefix: "/api" })
+  .use(ip())
+  .use(
+    cors({
+      origin:
+        process.env.NEXT_PUBLIC_SITE_URL ||
+        process.env.SITE_URL ||
+        "http://localhost:8080",
+      methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+      allowedHeaders: ["Content-Type", "Authorization"],
+      credentials: true,
+      maxAge: 86400,
+    })
+  )
+  .use(
+    rateLimit({
+      duration: 60_000,
+      max: 100,
+      headers: true,
+      scoping: "scoped",
+      countFailedRequest: true,
+      errorResponse: new Response(
+        JSON.stringify({
+          error: "Too many requests",
+        }),
+        { status: 429 }
+      ),
+      generator: ipGenerator,
+      context: new DefaultContext(10_000),
+    })
+  )
   .use(
     openapi({
       path: "/docs",

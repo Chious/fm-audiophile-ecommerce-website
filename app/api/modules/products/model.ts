@@ -75,16 +75,43 @@ export const product = t.Object({
 
 export type product = typeof product.static;
 
-export const productsResponse = t.Object({
-  products: t.Array(product, {
-    description: "Array of products.",
-  }),
-});
-
-export type productsResponse = typeof productsResponse.static;
-
 export const productResponse = t.Object({
   product: product,
 });
 
 export type productResponse = typeof productResponse.static;
+
+export const productsMeta = t.Object({
+  page: t.Number({
+    description: "Current page number (1-indexed).",
+    minimum: 1,
+  }),
+  limit: t.Number({
+    description: "Maximum items per page.",
+    minimum: 1,
+  }),
+  total: t.Number({
+    description: "Total number of products after filters.",
+    minimum: 0,
+  }),
+  category: t.Union(
+    [
+      t.String({
+        description: "Applied category filter slug.",
+      }),
+      t.Null({
+        description: "No category filter applied.",
+      }),
+    ],
+    { description: "Current category filter, if any." }
+  ),
+});
+
+export const productsResponse = t.Object({
+  products: t.Array(product, {
+    description: "Array of products.",
+  }),
+  meta: t.Optional(productsMeta),
+});
+
+export type productsResponse = typeof productsResponse.static;
