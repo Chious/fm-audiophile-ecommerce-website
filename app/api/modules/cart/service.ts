@@ -8,9 +8,10 @@ const sampleCart = [
 ];
 
 export abstract class CartService {
-  static buildCart(): cartResponse {
-    const cartItems = sampleCart.map((item) => {
-      const product = ProductService.getProductBySlug(item.slug);
+  static async buildCart(): Promise<cartResponse> {
+    const cartItems = await Promise.all(
+      sampleCart.map(async (item) => {
+        const product = await ProductService.getProductBySlug(item.slug);
       const price = product?.price ?? 0;
 
       return {
@@ -19,7 +20,8 @@ export abstract class CartService {
         product: product ?? null,
         total: price * item.quantity,
       };
-    });
+      })
+    );
 
     const subtotal = cartItems.reduce((sum, item) => sum + item.total, 0);
     const shipping = 50;

@@ -292,7 +292,10 @@ async function seed() {
 
 // Run seed if this file is executed directly
 // For Bun/Node.js compatibility
-if (import.meta.main || require.main === module) {
+if (
+  (import.meta as { main?: boolean }).main ||
+  (typeof require !== "undefined" && require.main === module)
+) {
   seed()
     .then(() => {
       console.log("Seed script finished");

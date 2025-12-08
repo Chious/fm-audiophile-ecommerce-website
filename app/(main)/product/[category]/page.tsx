@@ -26,7 +26,7 @@ export default async function ProductCategoryPage({
   params: Promise<{ category: string }>;
 }) {
   const { category } = await params;
-  const { products } = ProductService.getProductsByCategory(category);
+  const { products } = await ProductService.getProductsByCategory(category);
   const categoryName = capitalizeFirst(category);
 
   return (

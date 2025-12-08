@@ -6,8 +6,8 @@ export const products = new Elysia({ prefix: "/products" })
   // List all products
   .get(
     "/",
-    () => {
-      return ProductService.getAllProducts();
+    async () => {
+      return await ProductService.getAllProducts();
     },
     {
       detail: {
@@ -24,8 +24,8 @@ export const products = new Elysia({ prefix: "/products" })
   // List products by category
   .get(
     "/category/:category",
-    ({ params }) => {
-      return ProductService.getProductsByCategory(params.category);
+    async ({ params }) => {
+      return await ProductService.getProductsByCategory(params.category);
     },
     {
       detail: {
@@ -49,8 +49,8 @@ export const products = new Elysia({ prefix: "/products" })
   // Get single product by slug
   .get(
     "/:slug",
-    ({ params, set }) => {
-      const product = ProductService.getProductBySlug(params.slug);
+    async ({ params, set }) => {
+      const product = await ProductService.getProductBySlug(params.slug);
       if (!product) {
         set.status = 404;
         return { error: "Product not found" };

@@ -282,7 +282,7 @@
             "description": "Create Drizzle ORM schema files defining the `products`, `categories`, `product_images`, `product_includes`, and `related_products` tables with appropriate columns, constraints, and relationships.",
             "dependencies": [],
             "details": "Define each table using Drizzle’s SQLite/PostgreSQL core functions. Ensure `products` has fields like `id`, `slug`, `name`, `categoryId`, `price`, `stock`, `description`, etc. Link `product_images`, `product_includes`, and `related_products` to `products` via foreign keys. Define a `categories` table with `id` and `name`.",
-            "status": "in-progress",
+            "status": "done",
             "testStrategy": "Inspect generated schema files and verify all required fields and relationships are correctly defined. Use Drizzle Kit to generate and review migration files."
           },
           {
@@ -293,7 +293,7 @@
               "5.1"
             ],
             "details": "Install required Drizzle and database driver packages. Create a `drizzle.config.ts` file pointing to the schema and migrations directory. Create a `db.ts` file that exports a `db` instance using `drizzle()` and the appropriate client (e.g., `libsql` for Turso). Ensure environment variables for the database URL and auth token are used.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Verify that the `db` instance can be imported and used in a simple script to query a test table. Confirm migrations can be generated and applied successfully."
           },
           {
@@ -304,7 +304,7 @@
               "5.2"
             ],
             "details": "Run `npx drizzle-kit generate` to create migration files in the configured migrations directory. Then run `npx drizzle-kit migrate` to apply the migrations to the database. Verify that all tables (`products`, `categories`, `product_images`, `product_includes`, `related_products`) are created with correct columns and constraints.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Connect to the database and inspect the created tables. Confirm that all expected columns, primary keys, foreign keys, and indexes are present and correctly defined."
           },
           {
@@ -315,7 +315,7 @@
               "5.3"
             ],
             "details": "Create a `ProductService` class with methods: `getAllProducts(pagination)` (with limit/offset), `getProductBySlug(slug)`, and `getProductsByCategory(category)`. Use Drizzle ORM’s query builder to join `products` with `categories`, `product_images`, `product_includes`, and `related_products` as needed. Ensure the returned data structure matches the existing frontend expectations (slug, name, category, price, stock, images, etc.).",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Call each method directly with test inputs and verify the returned data structure matches the expected format. Check that pagination, filtering by category, and slug lookup work correctly."
           },
           {
@@ -1246,7 +1246,7 @@
     ],
     "metadata": {
       "created": "2025-12-07T01:00:51.748Z",
-      "updated": "2025-12-07T01:15:33.566Z",
+      "updated": "2025-12-08T02:20:47.047Z",
       "description": "Tasks for master context"
     }
   }

@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   postgres:
     image: postgres:16-alpine
@@ -18,29 +16,23 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    networks:
-      - audiophile-network
   app:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        DATABASE_URL: postgresql://audiophile:audiophile123@host.docker.internal:5432/audiophile_db
     container_name: audiophile-app
     restart: unless-stopped
     ports:
       - "${APP_PORT:-3000}:3000"
     environment:
-      - DATABASE_URL=postgresql://audiophile:audiophile123@postgres:5432/audiophile_db
+      - DATABASE_URL=postgresql://audiophile:audiophile123@host.docker.internal:5432/audiophile_db
       - NODE_ENV=production
       - NEXT_PUBLIC_SITE_URL=http://localhost:3000
     depends_on:
       postgres:
         condition: service_healthy
-    networks:
-      - audiophile-network
-
-networks:
-  audiophile-network:
-    driver: bridge
 
 volumes:
   postgres_data:

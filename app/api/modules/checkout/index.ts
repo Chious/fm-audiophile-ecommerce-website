@@ -4,8 +4,8 @@ import { checkoutBody, checkoutResponse } from "./model";
 
 export const checkout = new Elysia({ prefix: "/checkout" }).post(
   "/",
-  ({ body }) => {
-    return CheckoutService.processCheckout(body);
+  async ({ body }) => {
+    return await CheckoutService.processCheckout(body);
   },
   {
     detail: {

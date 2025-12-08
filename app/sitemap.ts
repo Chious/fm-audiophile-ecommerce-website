@@ -2,7 +2,7 @@ import { MetadataRoute } from "next";
 import { categoryLinks } from "@/data/nav";
 import { ProductService } from "@/app/api/modules/products/service";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl =
     process.env.NEXT_PUBLIC_SITE_URL ||
     process.env.VERCEL_URL ||
@@ -38,7 +38,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   );
 
   // Product detail pages
-  const { products } = ProductService.getAllProducts();
+  const { products } = await ProductService.getAllProducts();
   const productPages: MetadataRoute.Sitemap = products.map((product) => ({
     url: `${siteUrl}/product/${product.category}/${product.slug}`,
     lastModified: new Date(),

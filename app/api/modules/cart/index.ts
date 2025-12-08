@@ -4,8 +4,8 @@ import { cartResponse } from "./model";
 
 export const cart = new Elysia({ prefix: "/cart" }).get(
   "/",
-  () => {
-    return CartService.buildCart();
+  async () => {
+    return await CartService.buildCart();
   },
   {
     detail: {

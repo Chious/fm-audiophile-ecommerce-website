@@ -1,14 +1,24 @@
 import Link from "next/link";
 import Image from "next/image";
-import { getBlobImageUrl, getResponsiveBlobImageUrl } from "@/utils/r2-image";
+import { getResponsiveBlobImageUrl } from "@/utils/r2-image";
 import ProductAddToCart from "@/components/ProductAddToCart";
-import { ProductService } from "@/api/modules/products/service";
 import productsData from "@/data/data.json";
+import { fetch } from "@/utils/eden";
 
 export const revalidate = 3600;
 
 async function getProductBySlug(slug: string) {
-  return ProductService.getProductBySlug(slug) || null;
+  try {
+    const response = await fetch("/api/products/:slug", {
+      params: { slug },
+    });
+    if (response.error) {
+      return null;
+    }
+    return response.data.product || null;
+  } catch {
+    return null;
+  }
 }
 
 export async function generateStaticParams() {

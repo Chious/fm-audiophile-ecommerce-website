@@ -2,8 +2,8 @@ import { CartService } from "@/api/modules/cart/service";
 import type { checkoutBody, checkoutResponse } from "./model";
 
 export abstract class CheckoutService {
-  static processCheckout(body: checkoutBody): checkoutResponse {
-    const cart = CartService.buildCart();
+  static async processCheckout(body: checkoutBody): Promise<checkoutResponse> {
+    const cart = await CartService.buildCart();
 
     return {
       success: true,
