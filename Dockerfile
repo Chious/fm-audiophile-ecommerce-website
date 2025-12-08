@@ -23,7 +23,7 @@ ARG DATABASE_URL
 ENV DATABASE_URL=$DATABASE_URL
 ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN bun run db:push
+RUN bun run setup
 
 # Build Next.js application
 RUN bun run build

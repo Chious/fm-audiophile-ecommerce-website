@@ -11,7 +11,9 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "db:seed": "bun run database/seed.ts"
+    "db:seed": "bun run database/seed.ts",
+    "db:init": "bash scripts/init-db.sh",
+    "setup": "bun run db:init"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.943.0",

@@ -48,10 +48,27 @@ type ProductData = {
 
 type ProductsData = ProductData[];
 
-async function seed() {
+async function seed(force: boolean = false) {
+  // Skip seeding in production environment
+  if (process.env.NODE_ENV === "production") {
+    console.log("⚠️  Skipping database seed in production environment");
+    console.log("   Database seeding should only be done in development");
+    return;
+  }
+
   console.log("🌱 Starting database seed...");
 
   try {
+    // Check if database already has data
+    if (!force) {
+      const existingCategories = await db.select().from(categories).limit(1);
+      if (existingCategories.length > 0) {
+        console.log("✅ Database already has data. Skipping seed.");
+        console.log("   To force re-seed, run: bun run db:seed --force");
+        return;
+      }
+    }
+
     // Clear existing data (in reverse order of dependencies)
     console.log("🧹 Clearing existing data...");
     await db.delete(relatedProducts);
@@ -296,7 +313,8 @@ if (
   (import.meta as { main?: boolean }).main ||
   (typeof require !== "undefined" && require.main === module)
 ) {
-  seed()
+  const force = process.argv.includes("--force");
+  seed(force)
     .then(() => {
       console.log("Seed script finished");
       process.exit(0);

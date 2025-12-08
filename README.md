@@ -1,213 +1,254 @@
-# Frontend Mentor - Audiophile e-commerce website solution
+# Audiophile E-commerce Website
 
-This is a solution to the [Audiophile e-commerce website challenge on Frontend Mentor](https://www.frontendmentor.io/challenges/audiophile-ecommerce-website-C8cuSd_wx). Frontend Mentor challenges help you improve your coding skills by building realistic projects.
+> A full-stack e-commerce platform for premium audio equipment, built as a [Frontend Mentor](https://www.frontendmentor.io/challenges/audiophile-ecommerce-website-C8cuSd_wx) challenge solution.
 
-## Table of contents
+## Live Demo
 
-- [Overview](#overview)
-  - [The challenge](#the-challenge)
-  - [Screenshot](#screenshot)
-  - [Links](#links)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-  - [Database Setup](#database-setup)
-  - [Running the Application](#running-the-application)
-  - [Available Scripts](#available-scripts)
-  - [Troubleshooting](#troubleshooting)
-- [My process](#my-process)
-  - [Built with](#built-with)
-  - [What I learned](#what-i-learned)
-  - [Continued development](#continued-development)
-  - [Useful resources](#useful-resources)
-- [Author](#author)
-- [Acknowledgments](#acknowledgments)
+- **Website**: [fm-audiophile-ecommerce-website.zeabur.app](https://fm-audiophile-ecommerce-website.zeabur.app)
+- **Admin Panel**: [/admin](https://fm-audiophile-ecommerce-website.zeabur.app/admin)
+- **API Docs**: [/api/docs](https://fm-audiophile-ecommerce-website.zeabur.app/api/docs)
+- **GitHub**: [View Source](https://github.com/Chious/fm-audiophile-ecommerce-website)
 
-## Overview
+---
 
-### The challenge
+## Features
 
-Users should be able to:
+Users can:
 
-- View the optimal layout for the app depending on their device's screen size
-- See hover states for all interactive elements on the page
-- Add/Remove products from the cart
-- Edit product quantities in the cart
-- Fill in all fields in the checkout
-- Receive form validations if fields are missed or incorrect during checkout
-- See correct checkout totals depending on the products in the cart
-  - Shipping always adds $50 to the order
-  - VAT is calculated as 20% of the product total, excluding shipping
-- See an order confirmation modal after checking out with an order summary
-- **Bonus**: Keep track of what's in the cart, even after refreshing the browser (`localStorage` could be used for this if you're not building out a full-stack app)
+- View responsive layouts optimized for any device
+- See hover states for all interactive elements
+- Add/remove products and edit quantities in cart
+- Complete checkout with full form validation
+- See accurate totals (shipping: $50, VAT: 20% of product total)
+- View order confirmation with summary after checkout
+- Persistent cart (survives page refresh)
 
-### Screenshot
+**Bonus features** (beyond the challenge):
 
-![](./screenshot.jpg)
+- Authentication system
+- Admin panel for product management
+- RESTful API with OpenAPI documentation
+- Image storage with Vercel Blob
 
-### Links
+---
 
-- Solution URL: [Add solution URL here](https://your-solution-url.com)
-- Live Site URL: [Add live site URL here](https://your-live-site-url.com)
+## Tech Stack
 
-## Getting Started
+### Frontend
 
-### Prerequisites
+- **React** + **Next.js** - UI and server-side rendering
+- **Tailwind CSS** - Styling
+- **Vercel Blob** - Image storage
 
-- [Bun](https://bun.sh/) (v1.0.0 or higher)
-- [Docker](https://www.docker.com/) and Docker Compose (for local database)
-- Node.js 20+ (if not using Bun)
+### Backend
 
-### Installation
+- **Next.js API Routes** - RESTful endpoints
+- **Elysia** - API framework with OpenAPI support
+- **Drizzle ORM** - Type-safe database queries
+- **Better Auth** - Authentication
+- **PostgreSQL** (Neon) - Database
 
-1. **Clone the repository**
+### Infrastructure
+
+- **Zeabur** - Hosting and deployment
+- **Docker** - Local development environment
+
+---
+
+## Quick Start
 
 ```bash
+# 1. Install dependencies
 git clone <repository-url>
 cd fm-audiophile-ecommerce-website
+bun install
+
+# 2. Set up environment
+cp .env.example .env.local
+
+# 3. Start database
+docker compose up postgres -d
+
+# 4. Initialize database (migrations + seed)
+bun run setup
+
+# 5. Run development server
+bun run dev
 ```
 
-2. **Install dependencies**
+Visit [http://localhost:8000](http://localhost:8000)
+
+---
+
+## Prerequisites
+
+Before you begin, ensure you have:
+
+- **Bun** (v1.0.0+) - [Install here](https://bun.sh/)
+- **Docker** + Docker Compose - [Install here](https://www.docker.com/)
+- **Node.js** 20+ (if not using Bun)
+
+### Installing Bun
 
 ```bash
-bun install
+# macOS/Linux
+curl -fsSL https://bun.com/install | bash
+
+# Windows PowerShell
+powershell -c "irm bun.sh/install.ps1|iex"
 ```
 
-3. **Set up environment variables**
+---
 
-Copy the example environment file and fill in the values:
+## Detailed Setup
+
+### 1. Environment Configuration
+
+Copy the example environment file:
 
 ```bash
 cp .env.example .env.local
 ```
 
-**Note**: This project supports both `.env` and `.env.local` files. `.env.local` is recommended for local development as it's typically ignored by git.
+The defaults work for local development. Only modify if you have custom requirements.
 
-Edit `.env.local` and configure the following:
+### 2. Database Setup
 
-```env
-# Database (Development)
-DATABASE_URL=postgresql://audiophile:audiophile123@localhost:5432/audiophile_db
-
-# PostgreSQL (for docker-compose)
-POSTGRES_USER=audiophile
-POSTGRES_PASSWORD=audiophile123
-POSTGRES_DB=audiophile_db
-POSTGRES_PORT=5432
-
-# Vercel Blob Storage (optional)
-BLOB_READ_WRITE_TOKEN=your_blob_token_here
-
-# Better Auth (optional)
-BETTER_AUTH_SECRET=your_secret_here
-BETTER_AUTH_URL=http://localhost:3000
-```
-
-### Database Setup
-
-1. **Start PostgreSQL with Docker**
+**Start PostgreSQL container:**
 
 ```bash
-docker-compose up -d
+docker compose up postgres -d
 ```
 
-This will start a PostgreSQL 16 container on port 5432.
+This starts PostgreSQL 16 on port `5432`.
 
-2. **Generate database migrations**
+**Initialize database:**
 
 ```bash
-bun run db:generate
+bun run setup
 ```
 
-3. **Apply migrations to database**
+This command:
+
+- Waits for database readiness
+- Runs migrations (`db:push`)
+- Seeds data automatically (skips if data already exists)
+
+**Force re-seed:**
 
 ```bash
-bun run db:push
+bun run db:seed --force
 ```
 
-Or use migrations:
+**Manual database management:**
 
 ```bash
-bun run db:migrate
+bun run db:generate   # Generate new migrations (if schema changes)
+bun run db:push       # Apply migrations
+bun run db:seed       # Seed data
+bun run db:studio     # Open Drizzle Studio (visual database manager)
 ```
 
-4. **Seed the database with initial data**
+### 3. Asset Storage (Optional)
 
-```bash
-bun run db:seed
-```
+To simulate Headless CMS asset storage:
 
-This will populate the database with products from `data/data.json`.
+1. Set up Vercel Blob credentials in `.env.local`:
 
-### Running the Application
+   - `BLOB_READ_WRITE_TOKEN`
+   - `BLOB_STORE_ID`
 
-1. **Start the development server**
+2. Upload assets:
+   ```bash
+   node upload-assets-to-vercel-blob.mjs
+   ```
 
-```bash
-bun run dev
-```
+---
 
-The application will be available at [http://localhost:3000](http://localhost:3000)
+## Available Scripts
 
-2. **Access API documentation**
+| Command               | Description                              |
+| --------------------- | ---------------------------------------- |
+| `bun run dev`         | Start development server                 |
+| `bun run build`       | Build for production                     |
+| `bun run start`       | Start production server                  |
+| `bun run setup`       | Complete database setup (migrate + seed) |
+| `bun run db:push`     | Apply database migrations                |
+| `bun run db:seed`     | Seed database with initial data          |
+| `bun run db:studio`   | Open Drizzle Studio                      |
+| `bun run db:generate` | Generate new migrations                  |
 
-OpenAPI documentation is available at [http://localhost:3000/api/docs](http://localhost:3000/api/docs)
+---
 
-3. **Open Drizzle Studio (optional)**
+## Troubleshooting
 
-To visually manage the database:
+### Database Connection Issues
 
-```bash
-bun run db:studio
-```
+**Problem:** Can't connect to database
 
-### Available Scripts
+**Solutions:**
 
-- `bun run dev` - Start development server
-- `bun run build` - Build for production
-- `bun run start` - Start production server
-- `bun run lint` - Run ESLint
-- `bun run db:generate` - Generate database migrations
-- `bun run db:push` - Push schema changes to database (development)
-- `bun run db:migrate` - Run database migrations (production)
-- `bun run db:studio` - Open Drizzle Studio
-- `bun run db:seed` - Seed database with initial data
+1. Ensure Docker is running:
 
-### Troubleshooting
+   ```bash
+   docker ps
+   ```
 
-**Database connection issues:**
+2. Check if port 5432 is available:
 
-- Ensure Docker is running and the PostgreSQL container is up: `docker ps`
-- Check if the port 5432 is available: `lsof -i :5432`
-- Verify DATABASE_URL in `.env.local` (or `.env`) matches docker-compose settings
-- Make sure `.env.local` exists and contains `DATABASE_URL`
+   ```bash
+   lsof -i :5432
+   ```
 
-**Migration issues:**
+3. Verify `DATABASE_URL` in `.env.local` matches docker-compose settings
 
-- If migrations fail, try resetting the database: `docker-compose down -v` then `docker-compose up -d`
-- Regenerate migrations: `bun run db:generate`
+4. Ensure `.env.local` exists with correct `DATABASE_URL`
 
-## My process
+### Migration Issues
 
-### Built with
+**Problem:** Migrations fail to apply
 
-- [React](https://reactjs.org/) - JS library
-- [Next.js](https://nextjs.org/) - React framework
-- [Tailwind CSS](https://tailwindcss.com/) - For styles
-- [Elysia](https://elysiajs.com/) - For API Endpoints
-- [R2](https://developers.cloudflare.com/r2/) - For storage
+**Solutions:**
 
-### What I learned
+1. Reset database:
 
-TD;LR
+   ```bash
+   docker-compose down -v
+   docker-compose up -d
+   ```
 
-### Continued development
+2. Regenerate migrations:
+   ```bash
+   bun run db:generate
+   ```
 
-TD;LR
+---
 
-### Useful resources
+## Documentation
 
-TD;LR
+- [Product Requirements Document](./.taskmaster/templates/prd.txt)
+- [Database Design](./docs/DATABASE_DESIGN.md)
+
+---
+
+## My Process
+
+### What I Learned
+
+TL;DR
+
+### Continued Development
+
+TL;DR
+
+### Useful Resources
+
+- [Frontend Mentor Challenge](https://www.frontendmentor.io/challenges/audiophile-ecommerce-website-C8cuSd_wx)
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Elysia Documentation](https://elysiajs.com/)
+- [Drizzle ORM Documentation](https://orm.drizzle.team/)
+
+---
 
 ## Author
 
@@ -215,6 +256,8 @@ TD;LR
 - Frontend Mentor - [@yourusername](https://www.frontendmentor.io/profile/yourusername)
 - Twitter - [@yourusername](https://www.twitter.com/yourusername)
 
+---
+
 ## Acknowledgments
 
-TD;LR
+TL;DR
