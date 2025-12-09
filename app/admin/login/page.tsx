@@ -12,7 +12,8 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { isAuthenticated, setAuthenticated } from "@/utils/auth";
+import { authClient } from "@/lib/auth-client";
+import { checkAdminAuth } from "@/utils/auth";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -22,10 +23,12 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Redirect if already authenticated
-    if (isAuthenticated()) {
-      router.push("/admin");
-    }
+    // Check if already authenticated as admin
+    checkAdminAuth().then((isAdmin) => {
+      if (isAdmin) {
+        router.push("/admin");
+      }
+    });
   }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -33,17 +36,41 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
 
-    // Simple client-side authentication (no API)
-    // In production, this should be replaced with real authentication
-    if (email && password) {
-      // Store login state
-      setAuthenticated(email);
+    try {
+      // Sign in using Better Auth client SDK
+      const result = await authClient.signIn.email({
+        email,
+        password,
+        callbackURL: `${window.location.origin}/admin`, // Redirect to admin dashboard
+        rememberMe: true,
+      });
 
-      // Redirect to admin dashboard
-      router.push("/admin");
-      router.refresh();
-    } else {
-      setError("Please enter both email and password");
+      console.log("result", result);
+
+      if (result.error) {
+        throw new Error(result.error.message || "Login failed");
+      }
+
+      // Check if user has admin role
+      if (result.data?.user) {
+        const userRole = (result.data.user as { role?: string }).role;
+        if (userRole !== "admin") {
+          setError("Access denied: Admin role required");
+          setLoading(false);
+          return;
+        }
+
+        // Wait a bit for cookies to be set, then use full page navigation
+        // to avoid RSC CORS issues with Next.js router
+        await new Promise((resolve) => setTimeout(resolve, 200));
+        window.location.href = "/admin";
+      } else {
+        throw new Error("Invalid response from server");
+      }
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "An error occurred during login"
+      );
       setLoading(false);
     }
   };
@@ -109,7 +136,10 @@ export default function LoginPage() {
             </Button>
           </form>
           <div className="mt-4 text-xs text-muted-foreground text-center">
-            <p>Demo: Any email and password will work</p>
+            <p>Use admin credentials to access the dashboard</p>
+            <p className="mt-1">
+              Default: admin@audiophile.com / Admin123!ChangeMe
+            </p>
           </div>
         </CardContent>
       </Card>

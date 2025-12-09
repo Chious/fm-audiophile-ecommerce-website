@@ -42,7 +42,11 @@ export const imageTypeEnum = pgEnum("image_type", [
 ]);
 
 // Better Auth: User role enum
-export const userRoleEnum = pgEnum("user_role", ["admin", "consumer"]);
+export const userRoleEnum = pgEnum("user_role", [
+  "admin",
+  "manager",
+  "consumer",
+]);
 
 // ============================================================================
 // Better Auth Tables

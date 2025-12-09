@@ -619,7 +619,7 @@
           2,
           3
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -627,7 +627,7 @@
             "description": "Set up Better Auth core, connect it to PostgreSQL, and wire it through Drizzle ORM.",
             "dependencies": [],
             "details": "Install required packages (better-auth, drizzle-orm, pg/postgres driver). Configure the Drizzle database instance for PostgreSQL and create a Better Auth instance using the Drizzle adapter with provider set to Postgres/pg. Ensure environment variables (DATABASE_URL, auth secret, etc.) are loaded securely and that migrations for Better Auth tables are generated and applied.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Verify the app can start without DB/auth errors, Better Auth can connect to PostgreSQL, and Better Auth tables exist in the database."
           },
           {
@@ -638,7 +638,7 @@
               "10.1"
             ],
             "details": "Configure Better Auth (and Drizzle schema) so that users have a role field constrained to at least 'admin' and 'consumer'. Ensure that the seed script for Task 3 can create users with these roles consistently. Decide on how roles are stored (e.g., enum or text) and ensure the generated schema matches this design.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Insert test users via seed or manual queries and confirm that roles are stored correctly and readable via Better Auth user queries."
           },
           {
@@ -650,7 +650,7 @@
               "10.2"
             ],
             "details": "Enable the emailAndPassword option in the Better Auth configuration. Implement API routes/handlers for sign-up, sign-in, and sign-out aligned with the framework being used (e.g., Next.js API routes or Elysia handlers). Ensure password hashing, error handling, and any required email verification flags are correctly configured.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Manually test sign-up, sign-in, and sign-out with valid and invalid credentials, verifying that users are created in the DB and errors are surfaced appropriately."
           },
           {
@@ -662,7 +662,7 @@
               "10.3"
             ],
             "details": "Configure Better Auth session options (expiry, rotation/update age). Set cookie flags such as HttpOnly, Secure, SameSite, and proper domain/path according to environment (dev vs prod). Ensure session creation on login and destruction on logout, and that the session is persisted in PostgreSQL.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "After login, inspect cookies and DB session records, confirm that sessions are created with correct expiry and are invalidated or removed after sign-out or expiry."
           },
           {
@@ -674,7 +674,7 @@
               "10.4"
             ],
             "details": "Add a GET /api/auth/session route that reads the current session via Better Auth, resolves the associated user, and returns a JSON payload with at least user id, email, and role. Handle unauthenticated requests by returning a clear 401 or null user. Ensure output format matches what downstream clients (e.g., admin route protection, cart logic) expect.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Call /api/auth/session as an authenticated and unauthenticated client, verify status codes and that the response includes the correct user and role for logged-in sessions."
           }
         ]
@@ -1246,7 +1246,7 @@
     ],
     "metadata": {
       "created": "2025-12-07T01:00:51.748Z",
-      "updated": "2025-12-09T02:37:07.379Z",
+      "updated": "2025-12-09T04:37:43.657Z",
       "description": "Tasks for master context"
     }
   }

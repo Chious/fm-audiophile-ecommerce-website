@@ -2,7 +2,7 @@
 
 import { useEffect, useState, startTransition } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { isAuthenticated } from "@/utils/auth";
+import { checkAdminAuth } from "@/utils/auth";
 import { AdminLayout as AdminLayoutComponent } from "@/components/admin/AdminLayout";
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
@@ -19,15 +19,21 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    // Check authentication
-    if (!isAuthenticated()) {
-      router.push("/admin/login");
-      return;
-    }
-
-    startTransition(() => {
-      setIsChecking(false);
-    });
+    // Check authentication and admin role
+    checkAdminAuth()
+      .then((admin) => {
+        if (!admin) {
+          router.push("/admin/login");
+          return;
+        }
+        startTransition(() => {
+          setIsChecking(false);
+        });
+      })
+      .catch((error) => {
+        console.error("Auth check error:", error);
+        router.push("/admin/login");
+      });
   }, [pathname, router]);
 
   // Show loading state while checking

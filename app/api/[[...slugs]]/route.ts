@@ -18,12 +18,21 @@ export const app = new Elysia({ prefix: "/api" })
   .use(ip())
   .use(
     cors({
-      origin:
-        process.env.NEXT_PUBLIC_SITE_URL ||
-        process.env.SITE_URL ||
+      origin: [
+        process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
+        process.env.SITE_URL || "http://localhost:3000",
+        "http://localhost:3000",
         "http://localhost:8080",
+      ],
       methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-      allowedHeaders: ["Content-Type", "Authorization"],
+      allowedHeaders: [
+        "Content-Type",
+        "Authorization",
+        "RSC",
+        "Next-Action",
+        "Next-Router-Prefetch",
+        "Next-Router-State-Tree",
+      ],
       credentials: true,
       maxAge: 86400,
     })

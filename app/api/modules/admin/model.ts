@@ -152,6 +152,160 @@ export const adminClientUpdateBody = t.Object({
 
 export type AdminClientUpdateBody = typeof adminClientUpdateBody.static;
 
+// --- Order admin schemas ---
+
+export const adminOrderItem = t.Object({
+  id: t.String(),
+  productId: t.String(),
+  productSlug: t.String(),
+  productName: t.String(),
+  quantity: t.Number(),
+  unitPrice: t.String(),
+  total: t.String(),
+  createdAt: t.String(),
+});
+
+export const adminOrder = t.Object({
+  id: t.String(),
+  orderNumber: t.String(),
+  status: t.Union([
+    t.Literal("pending"),
+    t.Literal("processing"),
+    t.Literal("shipped"),
+    t.Literal("delivered"),
+    t.Literal("cancelled"),
+  ]),
+  userId: t.Union([t.String(), t.Null()]),
+  customerName: t.String(),
+  customerEmail: t.String(),
+  customerPhone: t.Union([t.String(), t.Null()]),
+  shippingAddress: t.String(),
+  shippingZip: t.String(),
+  shippingCity: t.String(),
+  shippingCountry: t.String(),
+  paymentMethod: t.Union([t.Literal("emoney"), t.Literal("cash")]),
+  emoneyNumber: t.Union([t.String(), t.Null()]),
+  emoneyPin: t.Union([t.String(), t.Null()]),
+  subtotal: t.String(),
+  shipping: t.String(),
+  vat: t.String(),
+  grandTotal: t.String(),
+  createdAt: t.String(),
+  updatedAt: t.String(),
+  items: t.Array(adminOrderItem),
+});
+
+export const adminOrderUpdateBody = t.Object({
+  status: t.Union([
+    t.Literal("pending"),
+    t.Literal("processing"),
+    t.Literal("shipped"),
+    t.Literal("delivered"),
+    t.Literal("cancelled"),
+  ]),
+});
+
+export type AdminOrderUpdateBody = typeof adminOrderUpdateBody.static;
+
+export const adminOrdersResponse = t.Object({
+  orders: t.Array(adminOrder),
+  pagination: t.Object({
+    total: t.Number(),
+    limit: t.Number(),
+    offset: t.Number(),
+    hasMore: t.Boolean(),
+  }),
+});
+
+export const adminOrderResponse = t.Object({
+  order: adminOrder,
+});
+
+export const adminOrderFilters = t.Object({
+  status: t.Optional(
+    t.Union([
+      t.Literal("pending"),
+      t.Literal("processing"),
+      t.Literal("shipped"),
+      t.Literal("delivered"),
+      t.Literal("cancelled"),
+    ])
+  ),
+  dateFrom: t.Optional(t.String({ format: "date-time" })),
+  dateTo: t.Optional(t.String({ format: "date-time" })),
+  search: t.Optional(t.String()),
+  limit: t.Optional(t.Number({ minimum: 1, maximum: 100, default: 50 })),
+  offset: t.Optional(t.Number({ minimum: 0, default: 0 })),
+});
+
+// --- Media admin schemas ---
+
+export const adminMedia = t.Object({
+  id: t.String(),
+  productId: t.String(),
+  type: t.Union([
+    t.Literal("product"),
+    t.Literal("category"),
+    t.Literal("gallery"),
+    t.Literal("related"),
+  ]),
+  size: t.Union([
+    t.Literal("mobile"),
+    t.Literal("tablet"),
+    t.Literal("desktop"),
+  ]),
+  url: t.String(),
+  order: t.Number(),
+  createdAt: t.String(),
+});
+
+export const adminMediaFilters = t.Object({
+  productId: t.Optional(t.String()),
+  type: t.Optional(
+    t.Union([
+      t.Literal("product"),
+      t.Literal("category"),
+      t.Literal("gallery"),
+      t.Literal("related"),
+    ])
+  ),
+  size: t.Optional(
+    t.Union([t.Literal("mobile"), t.Literal("tablet"), t.Literal("desktop")])
+  ),
+  limit: t.Optional(t.Number({ minimum: 1, maximum: 100, default: 50 })),
+  offset: t.Optional(t.Number({ minimum: 0, default: 0 })),
+});
+
+export const adminMediaUploadBody = t.Object({
+  productId: t.String(),
+  type: t.Union([
+    t.Literal("product"),
+    t.Literal("category"),
+    t.Literal("gallery"),
+    t.Literal("related"),
+  ]),
+  size: t.Union([
+    t.Literal("mobile"),
+    t.Literal("tablet"),
+    t.Literal("desktop"),
+  ]),
+  order: t.Optional(t.Number({ minimum: 0, default: 0 })),
+});
+
+export const adminMediasResponse = t.Object({
+  medias: t.Array(adminMedia),
+  pagination: t.Object({
+    total: t.Number(),
+    limit: t.Number(),
+    offset: t.Number(),
+    hasMore: t.Boolean(),
+  }),
+});
+
+export const adminMediaResponse = t.Object({
+  media: adminMedia,
+});
+
 export const adminClientsResponse = t.Object({
   clients: t.Array(adminClient),
 });
