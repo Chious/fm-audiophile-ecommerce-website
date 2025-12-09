@@ -38,3 +38,29 @@ export const cartResponse = t.Object({
 });
 
 export type cartResponse = typeof cartResponse.static;
+
+export const addToCartRequest = t.Object({
+  productId: t.String({
+    description: "ID of the product to add.",
+  }),
+  quantity: t.Number({
+    description: "Quantity to add.",
+    minimum: 1,
+  }),
+  userId: t.Optional(
+    t.String({
+      description: "User ID if authenticated.",
+    })
+  ),
+  sessionId: t.Optional(
+    t.String({
+      description: "Session ID if guest.",
+    })
+  ),
+});
+
+export const addToCartResponse = t.Object({
+  success: t.Boolean(),
+  reservationId: t.Optional(t.String()),
+  message: t.Optional(t.String()),
+});

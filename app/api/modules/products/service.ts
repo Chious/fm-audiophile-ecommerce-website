@@ -147,6 +147,7 @@ function transformProduct(dbProduct: ProductWithRelations): product {
     },
     new: dbProduct.isNew,
     price,
+    stock: dbProduct.stock,
     description: dbProduct.description,
     features: dbProduct.features,
     includes: dbProduct.includes

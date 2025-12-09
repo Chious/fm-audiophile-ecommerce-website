@@ -5,10 +5,11 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { api } from "@/utils/eden";
-import { getResponsiveBlobImageUrl } from "@/utils/r2-image";
+import { getResponsiveBlobImageUrl, getBlobImageUrl } from "@/utils/r2-image";
 import { VALIDATION_MESSAGES, ERROR_MESSAGES } from "./validation";
 import { getCartFromStorage } from "@/utils/cartStorage";
 import type { product } from "@/api/modules/products/model";
+import type { CheckoutBody } from "@/api/modules/checkout/model";
 
 // Use Eden Treaty type inference
 type CheckoutPostResult = Awaited<ReturnType<typeof api.checkout.post>>;
@@ -29,10 +30,19 @@ type CartResponse = {
   grandTotal: number;
 };
 
-// Infer checkout body type from API
-type CheckoutBody = NonNullable<
-  Awaited<ReturnType<typeof api.checkout.post>>["data"]
->["receivedPayload"];
+// Form data type (flat structure for form inputs)
+type CheckoutFormData = {
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  zip: string;
+  city: string;
+  country: string;
+  payment: "emoney" | "cash";
+  emoneyNumber?: string;
+  emoneyPin?: string;
+};
 
 function formatPrice(price: number) {
   return new Intl.NumberFormat("en-US", {
@@ -50,7 +60,7 @@ export default function CheckoutPage() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [orderData, setOrderData] = useState<CheckoutResponse | null>(null);
 
-  const [formData, setFormData] = useState<CheckoutBody>({
+  const [formData, setFormData] = useState<CheckoutFormData>({
     name: "",
     email: "",
     phone: "",
@@ -64,7 +74,7 @@ export default function CheckoutPage() {
   });
 
   const [errors, setErrors] = useState<
-    Partial<Record<keyof CheckoutBody, string>>
+    Partial<Record<keyof CheckoutFormData, string>>
   >({});
 
   useEffect(() => {
@@ -125,7 +135,7 @@ export default function CheckoutPage() {
   }, []);
 
   const validateForm = (): boolean => {
-    const newErrors: Partial<Record<keyof CheckoutBody, string>> = {};
+    const newErrors: Partial<Record<keyof CheckoutFormData, string>> = {};
 
     if (!formData.name?.trim()) {
       newErrors.name = VALIDATION_MESSAGES.name.required;
@@ -170,9 +180,38 @@ export default function CheckoutPage() {
     e.preventDefault();
     if (!validateForm()) return;
 
+    if (!cart || cart.cartItems.length === 0) {
+      alert("Cart is empty");
+      return;
+    }
+
     setSubmitting(true);
     try {
-      const { data, error } = await api.checkout.post(formData);
+      // Transform form data to API format
+      const checkoutPayload: CheckoutBody = {
+        items: cart.cartItems
+          .filter((item) => item.product?.id)
+          .map((item) => ({
+            productId: String(item.product!.id),
+            quantity: item.quantity,
+          })),
+        customer: {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          address: formData.address,
+          zip: formData.zip,
+          city: formData.city,
+          country: formData.country,
+        },
+        payment: {
+          method: formData.payment,
+          emoneyNumber: formData.emoneyNumber || undefined,
+          emoneyPin: formData.emoneyPin || undefined,
+        },
+      };
+
+      const { data, error } = await api.checkout.post(checkoutPayload);
       if (error || !data) {
         const errorMessage =
           typeof error === "object" && error !== null && "message" in error
@@ -198,7 +237,7 @@ export default function CheckoutPage() {
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    if (errors[name as keyof CheckoutBody]) {
+    if (errors[name as keyof CheckoutFormData]) {
       setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
   };
@@ -225,8 +264,9 @@ export default function CheckoutPage() {
     );
   }
 
-  if (showSuccess && orderData) {
-    const otherItemsCount = orderData.cartItems.length - 1;
+  if (showSuccess && orderData && orderData.success) {
+    const otherItemsCount = orderData.items.length - 1;
+    const firstItem = orderData.items[0];
     return (
       <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
         <div className="bg-white rounded-lg p-6 md:p-8 lg:p-12 max-w-lg w-full">
@@ -255,31 +295,31 @@ export default function CheckoutPage() {
           <div className="bg-gray rounded-lg p-4 mb-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-4">
-                {orderData.cartItems[0]?.product && (
+                {firstItem && (
                   <>
-                    <Image
-                      src={getResponsiveBlobImageUrl(
-                        orderData.cartItems[0].product.image
-                      )}
-                      alt={orderData.cartItems[0].product.name}
-                      width={64}
-                      height={64}
-                      className="rounded-lg"
-                    />
+                    {firstItem.image && (
+                      <Image
+                        src={getBlobImageUrl(firstItem.image)}
+                        alt={firstItem.productName}
+                        width={64}
+                        height={64}
+                        className="rounded-lg"
+                      />
+                    )}
                     <div>
                       <p className="font-bold text-black">
-                        {orderData.cartItems[0].product.name}
+                        {firstItem.productName}
                       </p>
                       <p className="text-body text-black/50">
-                        {formatPrice(orderData.cartItems[0].product.price)} x{" "}
-                        {orderData.cartItems[0].quantity}
+                        {formatPrice(firstItem.unitPrice)} x{" "}
+                        {firstItem.quantity}
                       </p>
                     </div>
                   </>
                 )}
               </div>
               <p className="font-bold text-black">
-                {formatPrice(orderData.cartItems[0]?.total || 0)}
+                {formatPrice(firstItem?.total || 0)}
               </p>
             </div>
             {otherItemsCount > 0 && (

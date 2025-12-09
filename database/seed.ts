@@ -5,6 +5,9 @@ import {
   productImages,
   productIncludes,
   relatedProducts,
+  orderItems,
+  orders,
+  stockReservations,
 } from "./schema";
 import productsData from "../data/data.json";
 
@@ -71,6 +74,9 @@ async function seed(force: boolean = false) {
 
     // Clear existing data (in reverse order of dependencies)
     console.log("🧹 Clearing existing data...");
+    await db.delete(orderItems);
+    await db.delete(orders);
+    await db.delete(stockReservations);
     await db.delete(relatedProducts);
     await db.delete(productIncludes);
     await db.delete(productImages);

@@ -1,0 +1,38 @@
+---
+description: General coding and documentation practices for the project
+globs: **/*
+alwaysApply: true
+---
+
+## Documentation Files
+
+- **NEVER create markdown documentation files (\*.md) unless explicitly requested by the user**
+
+  - This includes: README.md, GUIDE.md, DOCUMENTATION.md, QUICKSTART.md, etc.
+  - Exception: Only create when user specifically asks for documentation
+  - When updating existing documentation, always confirm it's necessary
+
+- **Examples:**
+
+  ```
+  ❌ DON'T: Automatically create TESTING_GUIDE.md after implementing tests
+  ✅ DO: Only create documentation when user says "create a guide for X"
+
+  ❌ DON'T: Create QUICKSTART.md without being asked
+  ✅ DO: Wait for explicit request like "write a quickstart guide"
+  ```
+
+## Code Over Comments
+
+- **Prefer self-documenting code over extensive comments**
+  - Use clear variable and function names
+  - Keep functions focused and small
+  - Only add comments for complex business logic or non-obvious decisions
+
+## File Creation
+
+- **Only create files that are necessary for functionality**
+  - Configuration files: Yes (when needed for features)
+  - Test files: Yes (when implementing tests)
+  - Documentation files: Only when explicitly requested
+  - Helper files: Yes (when they serve a clear purpose)

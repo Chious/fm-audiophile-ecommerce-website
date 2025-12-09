@@ -58,6 +58,9 @@ export const product = t.Object({
   price: t.Number({
     description: "Unit price in USD.",
   }),
+  stock: t.Number({
+    description: "Current stock quantity.",
+  }),
   description: t.String({
     description: "Marketing description of the product.",
   }),

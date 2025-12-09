@@ -3,9 +3,33 @@ import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   test: {
+    // Load environment from .env.test
+    env: {
+      NODE_ENV: "test",
+    },
+    // Setup file to run before tests
+    setupFiles: ["./tests/setup.ts"],
+    // Test timeouts
+    testTimeout: 10000,
+    hookTimeout: 30000,
+    // Coverage configuration
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "json", "html"],
+      exclude: [
+        "node_modules/**",
+        "tests/**",
+        "**/*.config.*",
+        "**/*.d.ts",
+        "**/types/**",
+      ],
+    },
+    // Vitest configuration
     deps: {
       interopDefault: true,
     },
+    // Reporter
+    reporters: ["verbose"],
   },
   resolve: {
     alias: {

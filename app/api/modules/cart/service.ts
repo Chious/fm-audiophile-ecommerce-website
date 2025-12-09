@@ -1,4 +1,5 @@
 import { ProductService } from "@/api/modules/products/service";
+import { StockReservationService } from "@/api/modules/stock/service";
 import type { cartResponse } from "./model";
 
 const sampleCart = [
@@ -8,18 +9,46 @@ const sampleCart = [
 ];
 
 export abstract class CartService {
+  static async addToCart(
+    productId: string,
+    quantity: number,
+    userId?: string | null,
+    sessionId?: string | null
+  ) {
+    // 1. Reserve stock
+    const reservation = await StockReservationService.createReservation(
+      productId,
+      quantity,
+      userId,
+      sessionId
+    );
+
+    if (!reservation.success) {
+      throw new Error(reservation.error || "Failed to reserve stock");
+    }
+
+    // 2. In a real implementation, we would now add/update the item in the 'cart_items' table.
+    // For now, we just confirm the reservation.
+
+    return {
+      success: true,
+      reservationId: reservation.reservationId,
+      message: "Item added to cart (stock reserved)",
+    };
+  }
+
   static async buildCart(): Promise<cartResponse> {
     const cartItems = await Promise.all(
       sampleCart.map(async (item) => {
         const product = await ProductService.getProductBySlug(item.slug);
-      const price = product?.price ?? 0;
+        const price = product?.price ?? 0;
 
-      return {
-        slug: item.slug,
-        quantity: item.quantity,
-        product: product ?? null,
-        total: price * item.quantity,
-      };
+        return {
+          slug: item.slug,
+          quantity: item.quantity,
+          product: product ?? null,
+          total: price * item.quantity,
+        };
       })
     );
 
