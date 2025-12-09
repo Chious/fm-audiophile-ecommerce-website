@@ -8,8 +8,12 @@ import {
   orderItems,
   orders,
   stockReservations,
+  users,
+  accounts,
 } from "./schema";
 import productsData from "../data/data.json";
+import { auth } from "@/lib/auth";
+import { eq } from "drizzle-orm";
 
 // Type definitions for product data
 type ImageSizes = {
@@ -77,6 +81,8 @@ async function seed(force: boolean = false) {
     await db.delete(orderItems);
     await db.delete(orders);
     await db.delete(stockReservations);
+    await db.delete(accounts);
+    await db.delete(users);
     await db.delete(relatedProducts);
     await db.delete(productIncludes);
     await db.delete(productImages);
@@ -304,6 +310,78 @@ async function seed(force: boolean = false) {
           });
         }
       }
+    }
+
+    // Seed admin user
+    // Note: New user registrations via Better Auth will automatically get "consumer" role
+    // (as defined in the schema default). Only this seed script creates admin users.
+    console.log("👤 Creating admin user...");
+    const adminEmail = process.env.ADMIN_EMAIL || "admin@audiophile.com";
+    const adminPassword = process.env.ADMIN_PASSWORD || "Admin123!ChangeMe";
+    const adminName = process.env.ADMIN_NAME || "Admin User";
+
+    try {
+      // Check if admin user already exists
+      const [existingAdmin] = await db
+        .select()
+        .from(users)
+        .where(eq(users.email, adminEmail))
+        .limit(1);
+
+      if (existingAdmin) {
+        // Update existing admin to ensure role is admin
+        await db
+          .update(users)
+          .set({ role: "admin" })
+          .where(eq(users.email, adminEmail));
+        console.log(`✅ Admin user already exists: ${adminEmail}`);
+      } else {
+        // Create admin user using Better Auth API
+        try {
+          await auth.api.signUpEmail({
+            body: {
+              email: adminEmail,
+              password: adminPassword,
+              name: adminName,
+            },
+            headers: new Headers(),
+          });
+
+          // Update role to admin after creation
+          await db
+            .update(users)
+            .set({ role: "admin" })
+            .where(eq(users.email, adminEmail));
+
+          console.log(`✅ Admin user created: ${adminEmail}`);
+          console.log(`   Password: ${adminPassword}`);
+          console.log(`   ⚠️  Please change the password after first login!`);
+        } catch (error: unknown) {
+          // If user creation fails, try to update existing user
+          const authError = error as {
+            body?: { code?: string };
+            message?: string;
+          };
+          if (
+            authError.body?.code === "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL"
+          ) {
+            await db
+              .update(users)
+              .set({ role: "admin" })
+              .where(eq(users.email, adminEmail));
+            console.log(`✅ Admin user role updated: ${adminEmail}`);
+          } else {
+            console.warn(
+              `⚠️  Could not create admin user: ${
+                authError.message || "Unknown error"
+              }`
+            );
+          }
+        }
+      }
+    } catch (error) {
+      console.warn(`⚠️  Error creating admin user: ${error}`);
+      // Don't fail the entire seed if admin creation fails
     }
 
     console.log("✅ Database seed completed successfully!");
